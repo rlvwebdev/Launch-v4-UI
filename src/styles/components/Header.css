@@ -1,0 +1,361 @@
+/* ============================================
+   HEADER COMPONENT STYLES
+   Top navigation bar with logo, spacer, and utility menus
+   Responsive with mobile hamburger menu
+   ============================================ */
+
+/* --------------------------------------------
+   CSS VARIABLES
+   Component-specific design tokens
+   -------------------------------------------- */
+:root {
+  --header-height: 64px;
+  --header-bg: #1e293b;
+  --header-bg-hover: #334155;
+  --header-color: #f1f5f9;
+  --header-color-secondary: #cbd5e0;
+  --header-border: #334155;
+  --header-padding: 0 2rem;
+  --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --header-accent: #ff6b35;
+  --header-accent-hover: #ff8555;
+}
+
+[data-theme="dark"] {
+  --header-bg: #1e293b;
+  --header-bg-hover: #334155;
+  --header-color: #f1f5f9;
+  --header-color-secondary: #cbd5e0;
+  --header-border: #334155;
+  --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --header-accent: #ff6b35;
+  --header-accent-hover: #ff8555;
+}
+
+/* --------------------------------------------
+   BASE STYLES
+   Main header container and structure
+   -------------------------------------------- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: var(--header-height);
+  padding: var(--header-padding);
+  background: var(--header-bg);
+  color: var(--header-color);
+  border-bottom: 2px solid #ff6b35;
+  box-shadow: var(--header-shadow);
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+/* --------------------------------------------
+   LAYOUT SECTIONS
+   Three-column layout structure
+   -------------------------------------------- */
+.header__left {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.header__center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------
+   LOGO / BRANDING
+   Home link with logo styling
+   -------------------------------------------- */
+.header__logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--header-accent);
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.header__logo-link:hover {
+  color: var(--header-accent-hover);
+}
+
+.header__logo-text {
+  font-size: 2rem;
+  font-weight: 900;
+  font-family: 'Oxanium', 'Rajdhani', 'Teko', 'Chakra Petch', 'Arial Black', 'Trebuchet MS', sans-serif;
+  letter-spacing: 1px;
+  line-height: 1;
+  color: var(--header-accent);
+}
+
+.header__logo-text-a {
+  color: var(--header-accent);
+  transition: color 200ms ease;
+}
+
+.header__logo-link:hover .header__logo-text-a {
+  color: #ffffff;
+}
+
+.header__logo-link:hover .rocket-body {
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+.header__logo-link:hover .rocket-flame {
+  animation: flame-flash 0.6s ease-in-out;
+}
+
+@keyframes flame-flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------
+   DESKTOP NAVIGATION
+   Utility menu items for desktop view
+   -------------------------------------------- */
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header__menu-container {
+  position: relative;
+}
+
+.header__menu-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  color: #ffffff;
+  background: transparent;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.header__menu-button:hover {
+  background: var(--header-bg-hover);
+  color: #ffffff;
+}
+
+.header__menu-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.header__menu-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--header-accent);
+}
+
+.header__menu-button:hover .header__menu-icon {
+  color: var(--header-accent-hover);
+}
+
+/* --------------------------------------------
+   DROPDOWN MENUS
+   Expandable dropdown panels
+   -------------------------------------------- */
+.header__dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 200px;
+  background: var(--header-bg);
+  border: 1px solid var(--header-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms;
+}
+
+.header__dropdown--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.header__dropdown-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  font-size: 0.9375rem;
+  color: var(--header-color);
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+}
+
+.header__dropdown-item:hover {
+  background: var(--header-bg-hover);
+  color: var(--header-accent);
+}
+
+/* --------------------------------------------
+   MOBILE MENU TOGGLE
+   Hamburger icon for mobile navigation
+   -------------------------------------------- */
+.header__mobile-toggle {
+  display: none;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--header-accent);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.header__mobile-toggle:hover {
+  background: var(--header-bg-hover);
+  color: var(--header-accent-hover);
+}
+
+.header__mobile-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+/* --------------------------------------------
+   MOBILE NAVIGATION
+   Full-width mobile menu panel
+   -------------------------------------------- */
+.header__mobile-nav {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--header-bg);
+  border-top: 1px solid var(--header-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.header__mobile-nav--open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.header__mobile-item {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-bottom: 1px solid var(--header-border);
+  font-size: 1rem;
+  color: var(--header-accent);
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.header__mobile-item:hover {
+  background: var(--header-bg-hover);
+  color: var(--header-accent-hover);
+}
+
+.header__mobile-item:last-child {
+  border-bottom: none;
+}
+
+/* --------------------------------------------
+   RESPONSIVE
+   Mobile and tablet breakpoints
+   -------------------------------------------- */
+@media (max-width: 768px) {
+  .header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .header__logo-text {
+    font-size: 1.125rem;
+  }
+  
+  .header__nav {
+    display: none;
+  }
+  
+  .header__mobile-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .header__logo-text {
+    display: none;
+  }
+}
+
+/* --------------------------------------------
+   ACCESSIBILITY
+   Focus states and keyboard navigation
+   -------------------------------------------- */
+.header__skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  padding: 0.5rem 1rem;
+  background: var(--header-bg);
+  color: var(--header-color);
+  text-decoration: none;
+  z-index: 2000;
+}
+
+.header__skip-link:focus {
+  top: 0;
+}

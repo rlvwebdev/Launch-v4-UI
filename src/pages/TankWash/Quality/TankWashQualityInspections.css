@@ -1,0 +1,20 @@
+.tankwash-quality-inspections {
+  padding: 2rem;
+}
+
+.inspections-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.inspections-section h2 {
+  margin-bottom: 1rem;
+  color: #1a1a1a;
+}
+
+.inspections-section p {
+  color: #666;
+  line-height: 1.6;
+}

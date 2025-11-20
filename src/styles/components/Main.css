@@ -1,0 +1,72 @@
+/* ============================================
+   MAIN COMPONENT STYLES
+   Primary content area with dynamic margins
+   Adjusts based on sidebar and aside states
+   ============================================ */
+
+/* --------------------------------------------
+   BASE STYLES
+   Main content container
+   -------------------------------------------- */
+.main {
+  /* Position */
+  position: relative;
+  min-height: 100vh;
+  
+  /* Spacing */
+  padding: 0;
+  margin-top: 0;
+  padding-top: 0.5rem;
+  margin-left: 60px; /* Collapsed sidebar width */
+  margin-right: 0;
+  
+  /* Animation */
+  transition: margin-left 300ms ease, margin-right 300ms ease;
+}
+
+/* --------------------------------------------
+   SIDEBAR STATES
+   Adjust left margin based on sidebar
+   -------------------------------------------- */
+.main--sidebar-open {
+  margin-left: 240px; /* Full sidebar width */
+}
+
+/* --------------------------------------------
+   ASIDE STATES
+   Adjust right margin when aside is open
+   -------------------------------------------- */
+.main--aside-open {
+  margin-right: 320px; /* Aside width */
+}
+
+/* --------------------------------------------
+   RESPONSIVE
+   Mobile breakpoints
+   -------------------------------------------- */
+@media (max-width: 768px) {
+  .main {
+    /* No sidebar margin on mobile */
+    margin-left: 0;
+    padding: 1rem;
+  }
+  
+  .main--sidebar-open {
+    margin-left: 0;
+  }
+  
+  .main--aside-open {
+    /* No aside margin on mobile (aside overlays) */
+    margin-right: 0;
+  }
+}
+
+/* --------------------------------------------
+   ACCESSIBILITY
+   Reduced motion support
+   -------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .main {
+    transition: none;
+  }
+}

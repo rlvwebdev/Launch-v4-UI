@@ -1,0 +1,20 @@
+.finance-reporting-balance-sheet {
+  padding: 2rem;
+}
+
+.balance-sheet-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.balance-sheet-section h2 {
+  margin-bottom: 1rem;
+  color: #1a1a1a;
+}
+
+.balance-sheet-section p {
+  color: #666;
+  line-height: 1.6;
+}

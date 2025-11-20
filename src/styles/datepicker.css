@@ -1,0 +1,52 @@
+/* ============================================
+   NATIVE DATE PICKER CALENDAR STYLING
+   Custom styling for browser date pickers
+   ============================================ */
+
+/* Webkit browsers (Chrome, Edge, Safari) */
+input[type="date"]::-webkit-datetime-edit {
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: var(--navbar-text);
+  padding: 0 0.125rem;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: var(--navbar-text);
+  padding: 0 0.125rem;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background: rgba(255, 107, 53, 0.15);
+  color: var(--navbar-text-dark);
+  outline: none;
+  border-radius: 2px;
+}
+
+/* Calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  width: 16px;
+  height: 16px;
+  margin-left: 0.25rem;
+}
+
+/* Firefox */
+input[type="date"]::-moz-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator:hover {
+  opacity: 1;
+}

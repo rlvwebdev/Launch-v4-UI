@@ -1,0 +1,20 @@
+.safety-compliance-osha {
+  padding: 2rem;
+}
+
+.osha-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.osha-section h2 {
+  margin-bottom: 1rem;
+  color: #1a1a1a;
+}
+
+.osha-section p {
+  color: #666;
+  line-height: 1.6;
+}
