@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Header, Navbar, Sidebar, Aside, Main } from './components/layout';
 import { DateRangeFilter } from './components/common/DateRangeFilter';
@@ -143,7 +143,7 @@ function App() {
   return (
     <Router>
       <div className="app">
-        <Header onThemeChange={handleThemeChange} currentTheme={theme} />
+        <Header onThemeChange={handleThemeChange} />
         <Navbar
           onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
           onAsideToggle={() => setAsideOpen(!asideOpen)}

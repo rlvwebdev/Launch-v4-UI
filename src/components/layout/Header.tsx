@@ -5,10 +5,9 @@ import '../../styles/components/Header.css';
 interface HeaderProps {
   className?: string;
   onThemeChange?: (theme: 'light' | 'dark' | 'auto') => void;
-  currentTheme?: 'light' | 'dark' | 'auto';
 }
 
-export const Header = ({ className = '', onThemeChange, currentTheme = 'light' }: HeaderProps) => {
+export const Header = ({ className = '', onThemeChange }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [helpMenuOpen, setHelpMenuOpen] = useState(false);

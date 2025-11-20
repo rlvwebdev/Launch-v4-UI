@@ -25,7 +25,7 @@ export const Navbar = ({
   onAsideToggle,
   sidebarOpen = false,
   asideOpen = false,
-  actions = [],
+  actions: _actions = [],
   showDateFilter = false,
   dateFilter,
   className = '',

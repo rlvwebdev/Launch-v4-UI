@@ -15,12 +15,6 @@ interface Dashboard {
   icon: string;
 }
 
-interface NavSection {
-  id: string;
-  title: string;
-  items: NavItem[];
-}
-
 interface NavItem {
   id: string;
   label: string;
