@@ -110,7 +110,19 @@ import { FinanceOverview } from './pages/Finance/FinanceOverview';
 
 function AppContent() {
   const { asideContent } = useAside();
-  const [activeDashboard, setActiveDashboard] = useState('mydashboard');
+  const [activeDashboard, setActiveDashboard] = useState(() => {
+    // Determine active dashboard from URL path
+    const path = window.location.hash.slice(1); // Remove # from hash
+    if (path.startsWith('/drybulk')) return 'drybulk';
+    if (path.startsWith('/liquid')) return 'liquid';
+    if (path.startsWith('/tankwash')) return 'tankwash';
+    if (path.startsWith('/maintenance')) return 'maintenance';
+    if (path.startsWith('/quality')) return 'quality';
+    if (path.startsWith('/safety')) return 'safety';
+    if (path.startsWith('/hr')) return 'hr';
+    if (path.startsWith('/finance')) return 'finance';
+    return 'mydashboard';
+  });
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     // Open by default on desktop (769px+), closed on mobile/tablet
     return window.innerWidth >= 769;
@@ -123,6 +135,25 @@ function AppContent() {
     const saved = localStorage.getItem('theme');
     return (saved as 'light' | 'dark' | 'auto') || 'light';
   });
+
+  // Update active dashboard when URL changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const path = window.location.hash.slice(1);
+      if (path.startsWith('/drybulk')) setActiveDashboard('drybulk');
+      else if (path.startsWith('/liquid')) setActiveDashboard('liquid');
+      else if (path.startsWith('/tankwash')) setActiveDashboard('tankwash');
+      else if (path.startsWith('/maintenance')) setActiveDashboard('maintenance');
+      else if (path.startsWith('/quality')) setActiveDashboard('quality');
+      else if (path.startsWith('/safety')) setActiveDashboard('safety');
+      else if (path.startsWith('/hr')) setActiveDashboard('hr');
+      else if (path.startsWith('/finance')) setActiveDashboard('finance');
+      else setActiveDashboard('mydashboard');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
