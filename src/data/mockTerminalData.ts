@@ -61,10 +61,10 @@ const generateTerminalData = (id: string, name: string, region: string): Termina
       driversAvailable: Math.floor(14 * baseMultiplier),
       driversSitting: Math.floor(5 * baseMultiplier),
       driverCallouts: Math.floor(2 * baseMultiplier),
-      onTimeDelivery: 90 + Math.random() * 9, // 90-99%
+      onTimeDelivery: Math.round(90 + Math.random() * 9), // 90-99%
       totalMiles: Math.floor(2500 * baseMultiplier),
       estimatedRevenue: Math.floor(45000 * baseMultiplier),
-      fuelSurchargeRate: 0.40 + Math.random() * 0.10, // $0.40-$0.50
+      fuelSurchargeRate: Math.round((0.40 + Math.random() * 0.10) * 100) / 100, // $0.40-$0.50
     },
     tomorrow: {
       loadsShipping: Math.floor(22 * baseMultiplier),

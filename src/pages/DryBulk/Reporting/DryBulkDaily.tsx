@@ -95,11 +95,11 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
                         {activeDay === 'today' && (
                           <>
                             <td className={terminal.today.onTimeDelivery >= 95 ? 'text-success' : terminal.today.onTimeDelivery >= 90 ? 'text-info' : 'text-warning'}>
-                              {terminal.today.onTimeDelivery}%
+                              {Math.round(terminal.today.onTimeDelivery)}%
                             </td>
                             <td>{terminal.today.totalMiles.toLocaleString()}</td>
                             <td>${(terminal.today.estimatedRevenue / 1000).toFixed(1)}K</td>
-                            <td>${terminal.today.fuelSurchargeRate}</td>
+                            <td>${terminal.today.fuelSurchargeRate.toFixed(2)}</td>
                           </>
                         )}
                       </tr>
