@@ -94,25 +94,25 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
               <thead>
                 <tr>
                   <th>Division</th>
-                  <th title="Loads Shipping">🚚 Ship</th>
-                  <th title="Loads Delivering">📦 Del</th>
-                  <th title="Loads Open">📋 Open</th>
-                  <th title="Load Events">⚡ Evts</th>
-                  <th title="Trucks Assigned">🚛 Asgn</th>
+                  <th title="Loads Shipping">▲ Ship</th>
+                  <th title="Loads Delivering">▼ Del</th>
+                  <th title="Loads Open">◆ Open</th>
+                  <th title="Load Events">● Evts</th>
+                  <th title="Trucks Assigned">■ Asgn</th>
                   <th title="Trucks Operational">✓ Op</th>
-                  <th title="Trucks Out of Service">⚠️ OOS</th>
-                  <th title="Trucks Limited">🔧 LTD</th>
+                  <th title="Trucks Out of Service">✖ OOS</th>
+                  <th title="Trucks Limited">◐ LTD</th>
                   <th title="Trucks Available">✓ Avl</th>
-                  <th title="Drivers Assigned">👤 Asgn</th>
+                  <th title="Drivers Assigned">● Asgn</th>
                   <th title="Drivers Available">✓ Avl</th>
-                  <th title="Drivers Sitting">⏸️ Sit</th>
-                  <th title="Driver Callouts">📞 Out</th>
+                  <th title="Drivers Sitting">◯ Sit</th>
+                  <th title="Driver Callouts">✖ Out</th>
                   {activeDay === 'today' && (
                     <>
-                      <th title="On-Time Delivery %">📊 OTD</th>
-                      <th title="Total Miles">🛣️ Mi</th>
-                      <th title="Revenue">💰 Rev</th>
-                      <th title="Fuel Surcharge Rate">⛽ FSC</th>
+                      <th title="On-Time Delivery %">▲ OTD</th>
+                      <th title="Total Miles">▬ Mi</th>
+                      <th title="Revenue">$ Rev</th>
+                      <th title="Fuel Surcharge Rate">◆ FSC</th>
                     </>
                   )}
                 </tr>
@@ -159,25 +159,25 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
                 <thead>
                   <tr>
                     <th>Terminal</th>
-                    <th title="Loads Shipping">🚚 Ship</th>
-                    <th title="Loads Delivering">📦 Del</th>
-                    <th title="Loads Open">📋 Open</th>
-                    <th title="Load Events">⚡ Evts</th>
-                    <th title="Trucks Assigned">🚛 Asgn</th>
+                    <th title="Loads Shipping">▲ Ship</th>
+                    <th title="Loads Delivering">▼ Del</th>
+                    <th title="Loads Open">◆ Open</th>
+                    <th title="Load Events">● Evts</th>
+                    <th title="Trucks Assigned">■ Asgn</th>
                     <th title="Trucks Operational">✓ Op</th>
-                    <th title="Trucks Out of Service">⚠️ OOS</th>
-                    <th title="Trucks Limited">🔧 LTD</th>
+                    <th title="Trucks Out of Service">✖ OOS</th>
+                    <th title="Trucks Limited">◐ LTD</th>
                     <th title="Trucks Available">✓ Avl</th>
-                    <th title="Drivers Assigned">👤 Asgn</th>
+                    <th title="Drivers Assigned">● Asgn</th>
                     <th title="Drivers Available">✓ Avl</th>
-                    <th title="Drivers Sitting">⏸️ Sit</th>
-                    <th title="Driver Callouts">📞 Out</th>
+                    <th title="Drivers Sitting">◯ Sit</th>
+                    <th title="Driver Callouts">✖ Out</th>
                     {activeDay === 'today' && (
                       <>
-                        <th title="On-Time Delivery %">📊 OTD</th>
-                        <th title="Total Miles">🛣️ Mi</th>
-                        <th title="Revenue">💰 Rev</th>
-                        <th title="Fuel Surcharge Rate">⛽ FSC</th>
+                        <th title="On-Time Delivery %">▲ OTD</th>
+                        <th title="Total Miles">▬ Mi</th>
+                        <th title="Revenue">$ Rev</th>
+                        <th title="Fuel Surcharge Rate">◆ FSC</th>
                       </>
                     )}
                   </tr>
