@@ -20,6 +20,50 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
     return acc;
   }, {} as Record<string, TerminalData[]>);
 
+  // Calculate totals for a set of terminals
+  const calculateRegionTotals = (regionTerminals: TerminalData[]) => {
+    if (activeDay === 'today') {
+      return {
+        loadsShipping: regionTerminals.reduce((sum, t) => sum + t.today.loadsShipping, 0),
+        loadsDelivering: regionTerminals.reduce((sum, t) => sum + t.today.loadsDelivering, 0),
+        loadsOpen: regionTerminals.reduce((sum, t) => sum + t.today.loadsOpen, 0),
+        loadEvents: regionTerminals.reduce((sum, t) => sum + t.today.loadEvents, 0),
+        trucksAssigned: regionTerminals.reduce((sum, t) => sum + t.today.trucksAssigned, 0),
+        trucksOperational: regionTerminals.reduce((sum, t) => sum + t.today.trucksOperational, 0),
+        trucksOOS: regionTerminals.reduce((sum, t) => sum + t.today.trucksOOS, 0),
+        trucksLTD: regionTerminals.reduce((sum, t) => sum + t.today.trucksLTD, 0),
+        trucksAvailable: regionTerminals.reduce((sum, t) => sum + t.today.trucksAvailable, 0),
+        driversAssigned: regionTerminals.reduce((sum, t) => sum + t.today.driversAssigned, 0),
+        driversAvailable: regionTerminals.reduce((sum, t) => sum + t.today.driversAvailable, 0),
+        driversSitting: regionTerminals.reduce((sum, t) => sum + t.today.driversSitting, 0),
+        driverCallouts: regionTerminals.reduce((sum, t) => sum + t.today.driverCallouts, 0),
+        totalMiles: regionTerminals.reduce((sum, t) => sum + t.today.totalMiles, 0),
+        estimatedRevenue: regionTerminals.reduce((sum, t) => sum + t.today.estimatedRevenue, 0),
+        avgOTD: Math.round(regionTerminals.reduce((sum, t) => sum + t.today.onTimeDelivery, 0) / regionTerminals.length),
+        avgFSC: regionTerminals.reduce((sum, t) => sum + t.today.fuelSurchargeRate, 0) / regionTerminals.length,
+      };
+    } else {
+      return {
+        loadsShipping: regionTerminals.reduce((sum, t) => sum + t.tomorrow.loadsShipping, 0),
+        loadsDelivering: regionTerminals.reduce((sum, t) => sum + t.tomorrow.loadsDelivering, 0),
+        loadsOpen: regionTerminals.reduce((sum, t) => sum + t.tomorrow.loadsOpen, 0),
+        loadEvents: regionTerminals.reduce((sum, t) => sum + t.tomorrow.loadEvents, 0),
+        trucksAssigned: regionTerminals.reduce((sum, t) => sum + t.tomorrow.trucksAssigned, 0),
+        trucksOperational: regionTerminals.reduce((sum, t) => sum + t.tomorrow.trucksOperational, 0),
+        trucksOOS: regionTerminals.reduce((sum, t) => sum + t.tomorrow.trucksOOS, 0),
+        trucksLTD: regionTerminals.reduce((sum, t) => sum + t.tomorrow.trucksLTD, 0),
+        trucksAvailable: regionTerminals.reduce((sum, t) => sum + t.tomorrow.trucksAvailable, 0),
+        driversAssigned: regionTerminals.reduce((sum, t) => sum + t.tomorrow.driversAssigned, 0),
+        driversAvailable: regionTerminals.reduce((sum, t) => sum + t.tomorrow.driversAvailable, 0),
+        driversSitting: regionTerminals.reduce((sum, t) => sum + t.tomorrow.driversSitting, 0),
+        driverCallouts: regionTerminals.reduce((sum, t) => sum + t.tomorrow.driverCallouts, 0),
+      };
+    }
+  };
+
+  // Calculate division totals
+  const divisionTotals = calculateRegionTotals(terminals);
+
   return (
     <div className="page-container">
         <div className="page-header">
@@ -42,7 +86,72 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
           </button>
         </div>
 
-        {Object.entries(terminalsByRegion).map(([region, regionTerminals]) => (
+        {/* Division Totals */}
+        <div className="division-totals">
+          <h2 className="division-title">Dry Bulk Division Totals</h2>
+          <div className="terminal-table-wrapper">
+            <table className="terminal-table">
+              <thead>
+                <tr>
+                  <th>Division</th>
+                  <th title="Loads Shipping">🚚 Ship</th>
+                  <th title="Loads Delivering">📦 Del</th>
+                  <th title="Loads Open">📋 Open</th>
+                  <th title="Load Events">⚡ Evts</th>
+                  <th title="Trucks Assigned">🚛 Asgn</th>
+                  <th title="Trucks Operational">✓ Op</th>
+                  <th title="Trucks Out of Service">⚠️ OOS</th>
+                  <th title="Trucks Limited">🔧 LTD</th>
+                  <th title="Trucks Available">✓ Avl</th>
+                  <th title="Drivers Assigned">👤 Asgn</th>
+                  <th title="Drivers Available">✓ Avl</th>
+                  <th title="Drivers Sitting">⏸️ Sit</th>
+                  <th title="Driver Callouts">📞 Out</th>
+                  {activeDay === 'today' && (
+                    <>
+                      <th title="On-Time Delivery %">📊 OTD</th>
+                      <th title="Total Miles">🛣️ Mi</th>
+                      <th title="Revenue">💰 Rev</th>
+                      <th title="Fuel Surcharge Rate">⛽ FSC</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="totals-row">
+                  <td className="terminal-name">All Terminals</td>
+                  <td>{divisionTotals.loadsShipping}</td>
+                  <td>{divisionTotals.loadsDelivering}</td>
+                  <td>{divisionTotals.loadsOpen}</td>
+                  <td>{divisionTotals.loadEvents}</td>
+                  <td>{divisionTotals.trucksAssigned}</td>
+                  <td>{divisionTotals.trucksOperational}</td>
+                  <td className="text-warning">{divisionTotals.trucksOOS}</td>
+                  <td className="text-info">{divisionTotals.trucksLTD}</td>
+                  <td className="text-success">{divisionTotals.trucksAvailable}</td>
+                  <td>{divisionTotals.driversAssigned}</td>
+                  <td className="text-success">{divisionTotals.driversAvailable}</td>
+                  <td>{divisionTotals.driversSitting}</td>
+                  <td className="text-warning">{divisionTotals.driverCallouts}</td>
+                  {activeDay === 'today' && 'avgOTD' in divisionTotals && divisionTotals.avgOTD !== undefined && (
+                    <>
+                      <td className={divisionTotals.avgOTD >= 95 ? 'text-success' : divisionTotals.avgOTD >= 90 ? 'text-info' : 'text-warning'}>
+                        {divisionTotals.avgOTD}%
+                      </td>
+                      <td>{divisionTotals.totalMiles!.toLocaleString()}</td>
+                      <td>${(divisionTotals.estimatedRevenue! / 1000).toFixed(1)}K</td>
+                      <td>${divisionTotals.avgFSC!.toFixed(2)}</td>
+                    </>
+                  )}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {Object.entries(terminalsByRegion).map(([region, regionTerminals]) => {
+          const regionTotals = calculateRegionTotals(regionTerminals);
+          return (
           <div key={region} className="region-container">
             <h2 className="region-title">{region} Region</h2>
             <div className="terminal-table-wrapper">
@@ -56,13 +165,13 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
                     <th title="Load Events">⚡ Evts</th>
                     <th title="Trucks Assigned">🚛 Asgn</th>
                     <th title="Trucks Operational">✓ Op</th>
-                    <th title="Trucks Out of Service" className="text-warning">⚠️ OOS</th>
-                    <th title="Trucks Limited" className="text-info">🔧 LTD</th>
-                    <th title="Trucks Available" className="text-success">✓ Avl</th>
+                    <th title="Trucks Out of Service">⚠️ OOS</th>
+                    <th title="Trucks Limited">🔧 LTD</th>
+                    <th title="Trucks Available">✓ Avl</th>
                     <th title="Drivers Assigned">👤 Asgn</th>
-                    <th title="Drivers Available" className="text-success">✓ Avl</th>
+                    <th title="Drivers Available">✓ Avl</th>
                     <th title="Drivers Sitting">⏸️ Sit</th>
-                    <th title="Driver Callouts" className="text-warning">📞 Out</th>
+                    <th title="Driver Callouts">📞 Out</th>
                     {activeDay === 'today' && (
                       <>
                         <th title="On-Time Delivery %">📊 OTD</th>
@@ -105,11 +214,39 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
                       </tr>
                     );
                   })}
+                  {/* Region Totals Row */}
+                  <tr className="totals-row">
+                    <td className="terminal-name">{region} Total</td>
+                    <td>{regionTotals.loadsShipping}</td>
+                    <td>{regionTotals.loadsDelivering}</td>
+                    <td>{regionTotals.loadsOpen}</td>
+                    <td>{regionTotals.loadEvents}</td>
+                    <td>{regionTotals.trucksAssigned}</td>
+                    <td>{regionTotals.trucksOperational}</td>
+                    <td className="text-warning">{regionTotals.trucksOOS}</td>
+                    <td className="text-info">{regionTotals.trucksLTD}</td>
+                    <td className="text-success">{regionTotals.trucksAvailable}</td>
+                    <td>{regionTotals.driversAssigned}</td>
+                    <td className="text-success">{regionTotals.driversAvailable}</td>
+                    <td>{regionTotals.driversSitting}</td>
+                    <td className="text-warning">{regionTotals.driverCallouts}</td>
+                    {activeDay === 'today' && 'avgOTD' in regionTotals && regionTotals.avgOTD !== undefined && (
+                      <>
+                        <td className={regionTotals.avgOTD >= 95 ? 'text-success' : regionTotals.avgOTD >= 90 ? 'text-info' : 'text-warning'}>
+                          {regionTotals.avgOTD}%
+                        </td>
+                        <td>{regionTotals.totalMiles!.toLocaleString()}</td>
+                        <td>${(regionTotals.estimatedRevenue! / 1000).toFixed(1)}K</td>
+                        <td>${regionTotals.avgFSC!.toFixed(2)}</td>
+                      </>
+                    )}
+                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
-        ))}
+        );
+        })}
     </div>
   );
 };

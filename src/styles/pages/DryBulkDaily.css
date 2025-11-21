@@ -62,6 +62,23 @@
   background: var(--bg-overlay-hover);
 }
 
+/* Division Totals */
+.division-totals {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 1.5rem;
+}
+
+.division-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ff6b35;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 /* Region Container */
 .region-container {
   margin-bottom: 1.5rem;
@@ -110,18 +127,6 @@
   cursor: help;
 }
 
-.terminal-table th.text-success {
-  color: #4caf50;
-}
-
-.terminal-table th.text-warning {
-  color: #ff9800;
-}
-
-.terminal-table th.text-info {
-  color: #2196f3;
-}
-
 .terminal-table tbody tr {
   border-bottom: 1px solid var(--border-color);
   transition: background 0.2s ease;
@@ -158,6 +163,23 @@
 .terminal-table .text-info {
   color: #2196f3;
   font-weight: 600;
+}
+
+/* Totals Row */
+.terminal-table .totals-row {
+  background: var(--bg-overlay-hover);
+  font-weight: 600;
+  border-top: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.terminal-table .totals-row td {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.terminal-table .totals-row:hover {
+  background: var(--bg-overlay-hover);
 }
 
 /* Aside Sections */
