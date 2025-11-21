@@ -60,8 +60,11 @@
 .navbar__left {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
   flex-shrink: 0;
 }
+
+
 
 .navbar__center {
   flex: 1;
@@ -85,6 +88,78 @@
 .navbar__date-filter-container {
   display: flex;
   align-items: center;
+}
+
+/* --------------------------------------------
+   MOBILE ACTIONS MENU
+   Compact menu for date filter and actions on mobile
+   -------------------------------------------- */
+.navbar__mobile-actions {
+  position: relative;
+  display: none;
+}
+
+.navbar__mobile-actions-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  border: 1px solid var(--navbar-border);
+  border-radius: 8px;
+  background: var(--navbar-input-bg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms;
+  z-index: 1000;
+}
+
+[data-theme="dark"] .navbar__mobile-actions-dropdown {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.navbar__mobile-actions-dropdown--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.navbar__mobile-actions-item {
+  padding: 0.5rem;
+}
+
+.navbar__mobile-actions-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--navbar-text-dark);
+  background: transparent;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.navbar__mobile-actions-button:hover {
+  background: #f1f5f9;
+}
+
+[data-theme="dark"] .navbar__mobile-actions-button:hover {
+  background: #334155;
+}
+
+.navbar__mobile-actions-button svg {
+  color: var(--navbar-primary);
+  flex-shrink: 0;
 }
 
 /* --------------------------------------------
@@ -130,6 +205,25 @@
   color: #10b981;
 }
 
+/* Autoreload icon rotation animation - completes full rotation every 24 seconds (testing) */
+@keyframes autoreloadRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.navbar__autoreload svg {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Only animate when autoreload is active (green/toggled on) */
+.navbar__autoreload.navbar__toggle--active svg {
+  animation: autoreloadRotate 24s linear infinite;
+}
+
 .navbar__toggle-icon {
   width: 20px;
   height: 20px;
@@ -137,6 +231,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
+  transform-origin: center;
 }
 
 /* --------------------------------------------
@@ -334,6 +429,12 @@
   }
   
   .navbar__actions {
+    display: none;
+  }
+  
+  /* Hide desktop date filter and autoreload, show mobile actions menu */
+  .navbar__date-filter-container,
+  .navbar__autoreload {
     display: none;
   }
   

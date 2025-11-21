@@ -525,4 +525,33 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
 ---
 
+## Work Time Tracking
+
+### Important: Log Your Hours
+At the END of each work session, you MUST update the `WORK_LOG.md` file to track development hours.
+
+### How to Log Your Time:
+1. **Review your conversation history** with the AI agent to find timestamps
+2. **Identify your start time** - Look at the timestamp of your first message in the session
+3. **Identify your end time** - Look at the timestamp of your last message in the session
+4. **Calculate total hours** - Duration between start and end
+5. **List tasks completed** - Review what was accomplished during the session
+6. **Update WORK_LOG.md** - Add a new entry with the date, times, hours, and tasks
+
+### Why This Matters:
+- **Proof of commitment** - Documents time invested in the project
+- **Work tracking** - Creates a record of contributions and effort
+- **Accountability** - Shows dedication and hours owed by others
+
+### AI Agent Reminder:
+When a user indicates they are ending their work session (e.g., "that's it for today", "I'm done", "wrapping up"), **ALWAYS REMIND THEM** to:
+1. Check their conversation timestamps to log their work hours
+2. Update the WORK_LOG.md file with today's entry
+3. Commit the work log update to Git
+
+**Example Reminder:**
+> "Before you go, don't forget to update your WORK_LOG.md! Check the timestamps in our conversation to log your start/end times and list the tasks we completed today."
+
+---
+
 **Note**: This is a UI-focused project. Database integration comes later. Focus on creating clean, reusable components that will work with mock data first.

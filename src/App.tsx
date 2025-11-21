@@ -89,8 +89,31 @@ import { HelpDocumentation } from './pages/Help/HelpDocumentation';
 import { HelpSupport } from './pages/Help/HelpSupport';
 import { HelpFeedback } from './pages/Help/HelpFeedback';
 
+// My Dashboard - Personalized landing page
+import { MyDashboard } from './pages/MyDashboard';
+import { Calendar } from './pages/MyDashboard/Calendar';
+import { Tasks } from './pages/MyDashboard/Tasks';
+import { HomeTime } from './pages/MyDashboard/HomeTime';
+import { Training } from './pages/MyDashboard/Training';
+import { Benefits } from './pages/MyDashboard/Benefits';
+import { CompanyCard } from './pages/MyDashboard/CompanyCard';
+
+// Dashboard Overview Pages
+import { DryBulkOverview } from './pages/DryBulk/DryBulkOverview';
+import { LiquidOverview } from './pages/Liquid/LiquidOverview';
+import { TankWashOverview } from './pages/TankWash/TankWashOverview';
+import { MaintenanceOverview } from './pages/Maintenance/MaintenanceOverview';
+import { QualityOverview } from './pages/Quality/QualityOverview';
+import { SafetyOverview } from './pages/Safety/SafetyOverview';
+import { HROverview } from './pages/HR/HROverview';
+import { FinanceOverview } from './pages/Finance/FinanceOverview';
+
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeDashboard, setActiveDashboard] = useState('mydashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    // Open by default on desktop (769px+), closed on mobile/tablet
+    return window.innerWidth >= 769;
+  });
   const [asideOpen, setAsideOpen] = useState(() => {
     // Open by default on laptop/larger screens (1024px+)
     return window.innerWidth >= 1024;
@@ -152,24 +175,50 @@ function App() {
           actions={exampleActions}
           dateFilter={<DateRangeFilter />}
         />
-        <Sidebar isOpen={sidebarOpen} isCollapsed={!sidebarOpen} />
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          isCollapsed={!sidebarOpen} 
+          onMobileClose={() => setSidebarOpen(false)}
+          activeDashboard={activeDashboard}
+          onDashboardChange={setActiveDashboard}
+        />
         <Main sidebarOpen={sidebarOpen} asideOpen={asideOpen}>
           <Routes>
-            <Route path="/terminal/overview" element={<TerminalOverview />} />
-            <Route path="/terminal/analytics" element={<TerminalAnalytics />} />
-            <Route path="/terminal/compliance" element={<TerminalCompliance />} />
+            {/* My Dashboard - Personalized landing page */}
+            <Route path="/" element={<MyDashboard />} />
+            <Route path="/mydashboard/calendar" element={<Calendar />} />
+            <Route path="/mydashboard/tasks" element={<Tasks />} />
+            <Route path="/mydashboard/home-time" element={<HomeTime />} />
+            <Route path="/mydashboard/training" element={<Training />} />
+            <Route path="/mydashboard/benefits" element={<Benefits />} />
+            <Route path="/mydashboard/company-card" element={<CompanyCard />} />
             
-            <Route path="/fleet/trucks" element={<FleetTrucks />} />
-            <Route path="/fleet/drivers" element={<FleetDrivers />} />
-            <Route path="/fleet/trailers" element={<FleetTrailers />} />
+            {/* Dashboard Overview Routes */}
+            <Route path="/drybulk/overview" element={<DryBulkOverview />} />
+            <Route path="/liquid/overview" element={<LiquidOverview />} />
+            <Route path="/tankwash/overview" element={<TankWashOverview />} />
+            <Route path="/maintenance/overview" element={<MaintenanceOverview />} />
+            <Route path="/quality/overview" element={<QualityOverview />} />
+            <Route path="/safety/overview" element={<SafetyOverview />} />
+            <Route path="/hr/overview" element={<HROverview />} />
+            <Route path="/finance/overview" element={<FinanceOverview />} />
             
-            <Route path="/dispatch/loads" element={<DispatchLoads />} />
-            <Route path="/dispatch/planner" element={<DispatchPlanner />} />
-            <Route path="/dispatch/events" element={<DispatchEvents />} />
+            {/* Dry Bulk Routes */}
+            <Route path="/drybulk/terminal/overview" element={<TerminalOverview />} />
+            <Route path="/drybulk/terminal/analytics" element={<TerminalAnalytics />} />
+            <Route path="/drybulk/terminal/compliance" element={<TerminalCompliance />} />
             
-            <Route path="/reporting/dry-bulk" element={<ReportingDryBulk />} />
-            <Route path="/reporting/status" element={<ReportingStatus />} />
-            <Route path="/reporting/spill" element={<ReportingSpill />} />
+            <Route path="/drybulk/fleet/trucks" element={<FleetTrucks />} />
+            <Route path="/drybulk/fleet/drivers" element={<FleetDrivers />} />
+            <Route path="/drybulk/fleet/trailers" element={<FleetTrailers />} />
+            
+            <Route path="/drybulk/dispatch/loads" element={<DispatchLoads />} />
+            <Route path="/drybulk/dispatch/planner" element={<DispatchPlanner />} />
+            <Route path="/drybulk/dispatch/events" element={<DispatchEvents />} />
+            
+            <Route path="/drybulk/reporting/dry-bulk" element={<ReportingDryBulk />} />
+            <Route path="/drybulk/reporting/status" element={<ReportingStatus />} />
+            <Route path="/drybulk/reporting/spill" element={<ReportingSpill />} />
             
             {/* Liquid Routes */}
             <Route path="/liquid/terminal/overview" element={<LiquidTerminalOverview />} />
@@ -236,8 +285,6 @@ function App() {
             <Route path="/help/documentation" element={<HelpDocumentation />} />
             <Route path="/help/support" element={<HelpSupport />} />
             <Route path="/help/feedback" element={<HelpFeedback />} />
-            
-            <Route path="/" element={<TerminalOverview />} />
           </Routes>
         </Main>
         <Aside isOpen={asideOpen} />

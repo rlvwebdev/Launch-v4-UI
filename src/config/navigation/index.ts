@@ -1,5 +1,6 @@
 // Navigation index - maps dashboard IDs to their navigation configs
 
+import { myDashboardNavigation } from './myDashboardNav';
 import { dryBulkNavigation } from './dryBulkNav';
 import { liquidNavigation } from './liquidNav';
 import { tankWashNavigation } from './tankWashNav';
@@ -10,6 +11,7 @@ import { hrNavigation } from './hrNav';
 import { financeNavigation } from './financeNav';
 
 export const navigationMap: Record<string, any[]> = {
+  mydashboard: myDashboardNavigation,
   drybulk: dryBulkNavigation,
   liquid: liquidNavigation,
   tankwash: tankWashNavigation,
@@ -21,6 +23,7 @@ export const navigationMap: Record<string, any[]> = {
 };
 
 export { 
+  myDashboardNavigation,
   dryBulkNavigation, 
   liquidNavigation, 
   tankWashNavigation,

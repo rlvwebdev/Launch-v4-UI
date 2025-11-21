@@ -14,7 +14,8 @@ export const DateRangeFilter = ({ onDateChange, className = '' }: DateRangeFilte
     return today.toISOString().split('T')[0];
   };
 
-  const [isOpen, setIsOpen] = useState(false);
+  // Open by default on desktop (>1024px), closed on mobile/tablet
+  const [isOpen, setIsOpen] = useState(() => window.innerWidth > 1024);
   const [startDate, setStartDate] = useState(getTodayISO());
   const [endDate, setEndDate] = useState(getTodayISO());
 

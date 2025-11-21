@@ -135,6 +135,88 @@
   }
 }
 
+/* Rocket launch animation - only animate the icon */
+@keyframes rocketLaunch {
+  0% {
+    transform: translateY(0) rotate(-45deg);
+  }
+  10%, 20% {
+    transform: translateY(0) translateX(-3px) rotate(-45deg);
+  }
+  15%, 25% {
+    transform: translateY(0) translateX(3px) rotate(-45deg);
+  }
+  30% {
+    transform: translateY(0) rotate(-45deg);
+  }
+  100% {
+    transform: translateY(-150vh) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+/* Rocket return animation - enter from bottom */
+@keyframes rocketReturn {
+  0% {
+    transform: translateY(150vh) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(-45deg);
+    opacity: 1;
+  }
+}
+
+/* Flame stretch and squash during launch */
+@keyframes flameStretch {
+  0%, 30% {
+    transform: scaleY(1);
+  }
+  40% {
+    transform: scaleY(1.5);
+  }
+  50% {
+    transform: scaleY(2);
+  }
+  60% {
+    transform: scaleY(2.5);
+  }
+  70% {
+    transform: scaleY(3);
+  }
+  80% {
+    transform: scaleY(3.5);
+  }
+  90% {
+    transform: scaleY(4);
+  }
+  100% {
+    transform: scaleY(4.5);
+  }
+}
+
+.header__logo-link--launching .header__logo-icon {
+  animation: rocketLaunch 1s ease-in-out forwards;
+}
+
+.header__logo-link--launching .rocket-flame {
+  animation: flameStretch 1s ease-in-out forwards;
+  transform-origin: center top;
+}
+
+.header__logo-link--returning .header__logo-icon {
+  animation: rocketReturn 1s ease-out forwards;
+}
+
+/* Keep the rocket rotated at -45deg by default */
+.header__logo-icon {
+  display: inline-block;
+  transform: rotate(-45deg);
+}
+
 /* --------------------------------------------
    DESKTOP NAVIGATION
    Utility menu items for desktop view
@@ -214,6 +296,7 @@
 .header__dropdown-item {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
   width: 100%;
   padding: 0.75rem 1rem;
   border: none;
@@ -226,9 +309,18 @@
   transition: background-color 200ms ease;
 }
 
+.header__dropdown-item svg {
+  flex-shrink: 0;
+  color: var(--header-accent);
+}
+
 .header__dropdown-item:hover {
   background: var(--header-bg-hover);
   color: var(--header-accent);
+}
+
+.header__dropdown-item:hover svg {
+  color: var(--header-accent-hover);
 }
 
 /* --------------------------------------------
@@ -261,32 +353,41 @@
 
 /* --------------------------------------------
    MOBILE NAVIGATION
-   Full-width mobile menu panel
+   Full-width mobile menu panel (mobile)
+   Dropdown menu (tablet+)
    -------------------------------------------- */
+.header__mobile-menu-container {
+  position: relative;
+  display: none;
+}
+
 .header__mobile-nav {
   position: fixed;
   top: var(--header-height);
   left: 0;
   right: 0;
-  display: none;
+  display: flex;
   flex-direction: column;
   padding: 1rem;
   background: var(--header-bg);
   border-top: 1px solid var(--header-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-20px);
-  transition: opacity 200ms ease, transform 200ms ease;
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+  z-index: 950;
 }
 
 .header__mobile-nav--open {
-  display: flex;
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
 }
 
 .header__mobile-item {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
   padding: 1rem;
   border: none;
@@ -309,6 +410,40 @@
   border-bottom: none;
 }
 
+/* Tablet and larger: dropdown style like account menu */
+@media (min-width: 769px) {
+  .header__mobile-menu-container {
+    display: block;
+  }
+  
+  .header__mobile-nav {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    left: auto;
+    min-width: 220px;
+    padding: 0.5rem;
+    border: 1px solid var(--header-border);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-theme="dark"] .header__mobile-nav {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  }
+  
+  .header__mobile-item {
+    padding: 0.75rem 1rem;
+    border-bottom: none;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+  }
+  
+  .header__mobile-item:hover {
+    background: var(--header-bg-hover);
+  }
+}
+
 /* --------------------------------------------
    RESPONSIVE
    Mobile and tablet breakpoints
@@ -324,6 +459,10 @@
   
   .header__nav {
     display: none;
+  }
+  
+  .header__mobile-menu-container {
+    display: block;
   }
   
   .header__mobile-toggle {

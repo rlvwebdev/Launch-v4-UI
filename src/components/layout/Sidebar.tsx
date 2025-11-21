@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import '../../styles/components/Sidebar.css';
 import { navigationMap } from '../../config/navigation';
@@ -7,6 +7,9 @@ interface SidebarProps {
   isOpen?: boolean;
   isCollapsed?: boolean;
   className?: string;
+  onMobileClose?: () => void;
+  activeDashboard?: string;
+  onDashboardChange?: (dashboardId: string) => void;
 }
 
 interface Dashboard {
@@ -23,6 +26,7 @@ interface NavItem {
 }
 
 const dashboards: Dashboard[] = [
+  { id: 'mydashboard', name: 'My Dashboard', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
   { id: 'drybulk', name: 'Dry Bulk', icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 18.5a1.5 1.5 0 0 1-1 1.415V21a1 1 0 1 1-2 0v-1.08a1.5 1.5 0 0 1-.5-2.92V9.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v7.5a1.5 1.5 0 0 1 .5 1.5Zm-5-.585V21a1 1 0 1 1-2 0v-3.085A1.5 1.5 0 1 1 13 17.915ZM9 18.5a1.5 1.5 0 0 1-1 1.415V21a1 1 0 1 1-2 0v-1.08A1.5 1.5 0 0 1 5.5 17a1.5 1.5 0 0 1 .5 2.915V9.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v7.5a1.5 1.5 0 0 1 .5 1.5ZM21 8V7H2v1a1 1 0 0 0 1 1h17a1 1 0 0 0 1-1ZM3.5 2h16A2.5 2.5 0 0 1 22 4.5v.5H1v-.5A2.5 2.5 0 0 1 3.5 2Zm13 9h-10a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5Z"/></svg>' },
   { id: 'liquid', name: 'Liquid', icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 5.5A2.5 2.5 0 0 1 3.5 3h17A2.5 2.5 0 0 1 23 5.5v1A2.5 2.5 0 0 1 20.5 9h-17A2.5 2.5 0 0 1 1 6.5v-1Zm2 0v1a.5.5 0 0 0 .5.5h17a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-17a.5.5 0 0 0-.5.5ZM16 18.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm-11 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM3.5 11h17a.5.5 0 0 1 .5.5v4.535a3.5 3.5 0 0 0-2-.535 3.5 3.5 0 0 0-3.163 2h-5.674a3.5 3.5 0 0 0-3.163-2 3.5 3.5 0 0 0-2 .535V11.5a.5.5 0 0 1 .5-.5Z"/></svg>' },
   { id: 'tankwash', name: 'Tank Wash', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>' },
@@ -33,17 +37,59 @@ const dashboards: Dashboard[] = [
   { id: 'finance', name: 'Finance', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>' },
 ];
 
-export const Sidebar = ({ isOpen = true, isCollapsed = false, className = '' }: SidebarProps) => {
-  const [activeDashboard, setActiveDashboard] = useState('drybulk');
+export const Sidebar = ({ 
+  isOpen = true, 
+  isCollapsed = false, 
+  className = '', 
+  onMobileClose,
+  activeDashboard: activeDashboardProp = 'mydashboard',
+  onDashboardChange
+}: SidebarProps) => {
+  const activeDashboard = activeDashboardProp;
   const [dashboardDropdownOpen, setDashboardDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDashboardDropdownOpen(false);
+      }
+    };
+
+    if (dashboardDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dashboardDropdownOpen]);
 
   const toggleDashboardDropdown = () => {
     setDashboardDropdownOpen(!dashboardDropdownOpen);
   };
 
   const selectDashboard = (dashboardId: string) => {
-    setActiveDashboard(dashboardId);
+    if (onDashboardChange) {
+      onDashboardChange(dashboardId);
+    }
     setDashboardDropdownOpen(false);
+    
+    // Navigate to My Dashboard (root) or dashboard overview page
+    if (dashboardId === 'mydashboard') {
+      window.location.hash = '/';
+    } else {
+      const overviewPath = `/${dashboardId}/overview`;
+      window.location.hash = overviewPath;
+    }
+  };
+
+  const handleLinkClick = () => {
+    // Close sidebar on mobile when a link is clicked
+    if (window.innerWidth <= 768 && onMobileClose) {
+      onMobileClose();
+    }
   };
 
   const currentDashboard = dashboards.find((d) => d.id === activeDashboard);
@@ -60,7 +106,7 @@ export const Sidebar = ({ isOpen = true, isCollapsed = false, className = '' }: 
       } ${className}`}
     >
       {/* Dashboard Selector */}
-      <div className="sidebar__dashboard-selector">
+      <div className="sidebar__dashboard-selector" ref={dropdownRef}>
         <button
           className="sidebar__dashboard-button"
           onClick={toggleDashboardDropdown}
@@ -68,7 +114,7 @@ export const Sidebar = ({ isOpen = true, isCollapsed = false, className = '' }: 
         >
           <span>
             <span className="sidebar__dashboard-icon" dangerouslySetInnerHTML={{ __html: currentDashboard?.icon || '' }} />
-            <span>{currentDashboard?.name}</span>
+            <span className="sidebar__dashboard-text">{currentDashboard?.name}</span>
           </span>
           <span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
@@ -111,9 +157,10 @@ export const Sidebar = ({ isOpen = true, isCollapsed = false, className = '' }: 
                   className={({ isActive }) =>
                     `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`
                   }
+                  onClick={handleLinkClick}
                 >
-                  {item.icon && <span className="sidebar__link-icon" dangerouslySetInnerHTML={{ __html: item.icon }} />}
-                  <span>{item.label}</span>
+                  {item.icon && <span className="sidebar__icon sidebar__link-icon" dangerouslySetInnerHTML={{ __html: item.icon }} />}
+                  <span className="sidebar__link-text">{item.label}</span>
                 </NavLink>
               ))}
             </div>
