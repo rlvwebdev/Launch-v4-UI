@@ -97,16 +97,29 @@
 }
 
 .terminal-table th {
-  padding: 0.5rem 0.625rem;
+  padding: 0.5rem 0.5rem;
   text-align: left;
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   border-bottom: 1px solid var(--border-color);
+  cursor: help;
+}
+
+.terminal-table th.text-success {
+  color: #4caf50;
+}
+
+.terminal-table th.text-warning {
+  color: #ff9800;
+}
+
+.terminal-table th.text-info {
+  color: #2196f3;
 }
 
 .terminal-table tbody tr {

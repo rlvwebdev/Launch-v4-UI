@@ -50,25 +50,25 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
                 <thead>
                   <tr>
                     <th>Terminal</th>
-                    <th>Loads Ship</th>
-                    <th>Loads Del</th>
-                    <th>Loads Open</th>
-                    <th>Events</th>
-                    <th>Trucks Asgn</th>
-                    <th>Trucks Op</th>
-                    <th>Trucks OOS</th>
-                    <th>Trucks LTD</th>
-                    <th>Trucks Avail</th>
-                    <th>Drivers Asgn</th>
-                    <th>Drivers Avail</th>
-                    <th>Drivers Sit</th>
-                    <th>Callouts</th>
+                    <th title="Loads Shipping">🚚 Ship</th>
+                    <th title="Loads Delivering">📦 Del</th>
+                    <th title="Loads Open">📋 Open</th>
+                    <th title="Load Events">⚡ Evts</th>
+                    <th title="Trucks Assigned">🚛 Asgn</th>
+                    <th title="Trucks Operational">✓ Op</th>
+                    <th title="Trucks Out of Service" className="text-warning">⚠️ OOS</th>
+                    <th title="Trucks Limited" className="text-info">🔧 LTD</th>
+                    <th title="Trucks Available" className="text-success">✓ Avl</th>
+                    <th title="Drivers Assigned">👤 Asgn</th>
+                    <th title="Drivers Available" className="text-success">✓ Avl</th>
+                    <th title="Drivers Sitting">⏸️ Sit</th>
+                    <th title="Driver Callouts" className="text-warning">📞 Out</th>
                     {activeDay === 'today' && (
                       <>
-                        <th>OTD %</th>
-                        <th>Miles</th>
-                        <th>Revenue</th>
-                        <th>FSC Rate</th>
+                        <th title="On-Time Delivery %">📊 OTD</th>
+                        <th title="Total Miles">🛣️ Mi</th>
+                        <th title="Revenue">💰 Rev</th>
+                        <th title="Fuel Surcharge Rate">⛽ FSC</th>
                       </>
                     )}
                   </tr>
