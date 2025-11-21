@@ -20,7 +20,6 @@ import { DispatchPlanner } from './pages/Dispatch/DispatchPlanner';
 import { DispatchEvents } from './pages/Dispatch/DispatchEvents';
 
 // Reporting Pages
-import { DryBulkDaily } from './pages/DryBulk/Reporting/DryBulkDaily';
 import { ReportingStatus } from './pages/Reporting/ReportingStatus';
 import { ReportingSpill } from './pages/Reporting/ReportingSpill';
 
@@ -217,7 +216,7 @@ function AppContent() {
             <Route path="/drybulk/dispatch/planner" element={<DispatchPlanner />} />
             <Route path="/drybulk/dispatch/events" element={<DispatchEvents />} />
             
-            <Route path="/drybulk/reporting/dry-bulk" element={<DryBulkDaily />} />
+            <Route path="/drybulk/reporting/dry-bulk" element={<DryBulkOverview />} />
             <Route path="/drybulk/reporting/status" element={<ReportingStatus />} />
             <Route path="/drybulk/reporting/spill" element={<ReportingSpill />} />
             
