@@ -2,12 +2,20 @@
 
 export const dryBulkNavigation = [
   {
+    id: 'dashboard',
+    title: 'Dashboard',
+    items: [
+      { id: 'overview', label: 'Overview', path: '/drybulk/overview', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
+    ],
+  },
+  {
     id: 'terminal',
     title: 'Terminal',
     items: [
       { id: 'overview', label: 'Overview', path: '/drybulk/terminal/overview', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>' },
       { id: 'analytics', label: 'Analytics', path: '/drybulk/terminal/analytics', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' },
       { id: 'compliance', label: 'Compliance', path: '/drybulk/terminal/compliance', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>' },
+      { id: 'building', label: 'Building', path: '/drybulk/terminal/building', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>' },
     ],
   },
   {

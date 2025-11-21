@@ -2,6 +2,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Header, Navbar, Sidebar, Aside, Main } from './components/layout';
 import { DateRangeFilter } from './components/common/DateRangeFilter';
+import { AsideProvider, useAside } from './contexts/AsideContext';
 
 // Terminal Pages
 import { TerminalOverview } from './pages/Terminal/TerminalOverview';
@@ -19,7 +20,7 @@ import { DispatchPlanner } from './pages/Dispatch/DispatchPlanner';
 import { DispatchEvents } from './pages/Dispatch/DispatchEvents';
 
 // Reporting Pages
-import { ReportingDryBulk } from './pages/Reporting/ReportingDryBulk';
+import { DryBulkDaily } from './pages/DryBulk/Reporting/DryBulkDaily';
 import { ReportingStatus } from './pages/Reporting/ReportingStatus';
 import { ReportingSpill } from './pages/Reporting/ReportingSpill';
 
@@ -108,7 +109,8 @@ import { SafetyOverview } from './pages/Safety/SafetyOverview';
 import { HROverview } from './pages/HR/HROverview';
 import { FinanceOverview } from './pages/Finance/FinanceOverview';
 
-function App() {
+function AppContent() {
+  const { asideContent } = useAside();
   const [activeDashboard, setActiveDashboard] = useState('mydashboard');
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     // Open by default on desktop (769px+), closed on mobile/tablet
@@ -164,8 +166,7 @@ function App() {
   ];
 
   return (
-    <Router>
-      <div className="app">
+    <div className="app">
         <Header onThemeChange={handleThemeChange} />
         <Navbar
           onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -216,7 +217,7 @@ function App() {
             <Route path="/drybulk/dispatch/planner" element={<DispatchPlanner />} />
             <Route path="/drybulk/dispatch/events" element={<DispatchEvents />} />
             
-            <Route path="/drybulk/reporting/dry-bulk" element={<ReportingDryBulk />} />
+            <Route path="/drybulk/reporting/dry-bulk" element={<DryBulkDaily />} />
             <Route path="/drybulk/reporting/status" element={<ReportingStatus />} />
             <Route path="/drybulk/reporting/spill" element={<ReportingSpill />} />
             
@@ -287,8 +288,17 @@ function App() {
             <Route path="/help/feedback" element={<HelpFeedback />} />
           </Routes>
         </Main>
-        <Aside isOpen={asideOpen} />
+        <Aside isOpen={asideOpen}>{asideContent}</Aside>
       </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AsideProvider>
+        <AppContent />
+      </AsideProvider>
     </Router>
   );
 }

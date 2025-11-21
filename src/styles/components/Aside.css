@@ -81,7 +81,7 @@
    -------------------------------------------- */
 .aside__header {
   /* Spacing */
-  padding: 1.5rem;
+  padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--aside-border);
   
   /* Sizing */
@@ -94,11 +94,11 @@
 
 .aside__title {
   /* Typography */
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: var(--aside-color);
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 /* --------------------------------------------
@@ -110,12 +110,12 @@
   flex: 1;
   
   /* Spacing */
-  padding: 1.5rem;
+  padding: 0.875rem;
   
   /* Display */
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.875rem;
 }
 
 .aside__placeholder {
