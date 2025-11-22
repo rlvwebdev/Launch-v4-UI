@@ -5,7 +5,7 @@ export const dryBulkNavigation = [
     id: 'dashboard',
     title: 'Dashboard',
     items: [
-      { id: 'overview', label: 'Overview', path: '/drybulk/overview', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
+      { id: 'overview', label: 'Dry Bulk Daily', path: '/drybulk/overview', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
     ],
   },
   {
@@ -40,7 +40,6 @@ export const dryBulkNavigation = [
     id: 'reporting',
     title: 'Reporting',
     items: [
-      { id: 'dry-bulk', label: 'Dry Bulk Daily', path: '/drybulk/reporting/dry-bulk', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' },
       { id: 'status', label: 'Status Reporting', path: '/drybulk/reporting/status', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>' },
       { id: 'spill', label: 'Spill Reporting', path: '/drybulk/reporting/spill', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' },
     ],
