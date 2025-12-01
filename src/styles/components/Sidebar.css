@@ -187,8 +187,6 @@
   /* Animation */
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
-  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms;
 }
 
 /* Dropdown positioning for collapsed sidebar - desktop only */
@@ -204,7 +202,6 @@
 .sidebar__dashboard-dropdown--open {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
 }
 
 .sidebar__dashboard-option {

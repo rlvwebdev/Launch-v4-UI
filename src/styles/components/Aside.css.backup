@@ -1,0 +1,151 @@
+/* ============================================
+   ASIDE COMPONENT STYLES
+   Right panel for contextual details/actions
+   Slides in/out based on toggle state
+   ============================================ */
+
+/* --------------------------------------------
+   CSS VARIABLES
+   Component-specific design tokens
+   -------------------------------------------- */
+:root {
+  --aside-width: 320px;
+  --aside-bg: #f8fafc;
+  --aside-color: #0f172a;
+  --aside-border: #e2e8f0;
+  --aside-header-bg: #f1f5f9;
+}
+
+[data-theme="dark"] {
+  --aside-bg: #0f172a;
+  --aside-color: #e2e8f0;
+  --aside-border: #1e293b;
+  --aside-header-bg: #020617;
+}
+
+/* --------------------------------------------
+   BASE STYLES
+   Main aside container
+   -------------------------------------------- */
+.aside {
+  /* Position - Fixed on right side */
+  position: fixed;
+  top: 140px; /* Below header + navbar */
+  right: 0;
+  bottom: 0;
+  z-index: 700;
+  
+  /* Sizing */
+  width: var(--aside-width);
+  
+  /* Display */
+  display: flex;
+  flex-direction: column;
+  
+  /* Visual */
+  background: var(--aside-bg);
+  color: var(--aside-color);
+  border-left: 1px solid var(--aside-border);
+  
+  /* Scrolling */
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  /* Animation - Hidden by default, slides in when open */
+  transform: translateX(100%);
+  transition: transform 300ms ease, background-color 200ms ease, border-color 200ms ease;
+}
+
+/* Aside open state */
+.aside--open {
+  transform: translateX(0);
+}
+
+/* Custom scrollbar styling */
+.aside::-webkit-scrollbar {
+  width: 6px;
+}
+
+.aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.aside::-webkit-scrollbar-thumb {
+  background: var(--aside-border);
+  border-radius: 3px;
+}
+
+/* --------------------------------------------
+   HEADER
+   Top section with title
+   -------------------------------------------- */
+.aside__header {
+  /* Spacing */
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--aside-border);
+  
+  /* Sizing */
+  flex-shrink: 0;
+  
+  /* Visual */
+  background: var(--aside-header-bg);
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+.aside__title {
+  /* Typography */
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--aside-color);
+  margin: 0;
+  letter-spacing: 0;
+}
+
+/* --------------------------------------------
+   CONTENT
+   Main scrollable content area
+   -------------------------------------------- */
+.aside__content {
+  /* Layout */
+  flex: 1;
+  
+  /* Spacing */
+  padding: 0.875rem;
+  
+  /* Display */
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.aside__placeholder {
+  /* Typography */
+  font-size: 0.875rem;
+  color: var(--aside-color);
+  opacity: 0.5;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+/* --------------------------------------------
+   RESPONSIVE
+   Mobile breakpoints
+   -------------------------------------------- */
+@media (max-width: 768px) {
+  .aside {
+    /* Full width overlay on mobile */
+    width: 100%;
+    max-width: 320px;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* --------------------------------------------
+   ACCESSIBILITY
+   Focus states and reduced motion
+   -------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .aside {
+    transition: none;
+  }
+}

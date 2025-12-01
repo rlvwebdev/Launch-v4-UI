@@ -131,9 +131,9 @@ function AppContent() {
     // Open by default on laptop/larger screens (1024px+)
     return window.innerWidth >= 1024;
   });
-  const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>(() => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('theme');
-    return (saved as 'light' | 'dark' | 'auto') || 'light';
+    return (saved as 'light' | 'dark') || 'light';
   });
 
   // Update active dashboard when URL changes
@@ -157,18 +157,11 @@ function AppContent() {
 
   useEffect(() => {
     const root = document.documentElement;
-    
-    if (theme === 'auto') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-    } else {
-      root.setAttribute('data-theme', theme);
-    }
-    
+    root.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const handleThemeChange = (newTheme: 'light' | 'dark' | 'auto') => {
+  const handleThemeChange = (newTheme: 'light' | 'dark') => {
     setTheme(newTheme);
   };
 

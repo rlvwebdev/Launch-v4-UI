@@ -1,0 +1,169 @@
+/* ============================================
+   GLOBAL STYLES
+   Base reset and typography
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Light Theme (Default) */
+:root {
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #64748b;
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e0;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-light: #dbeafe;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e0;
+  --color-text-tertiary: #94a3b8;
+  --color-border: #334155;
+  --color-border-hover: #475569;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #60a5fa;
+  --color-accent-light: #1e3a8a;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  overflow-x: hidden;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+#main-content {
+  background: var(--color-bg-primary);
+  min-height: calc(100vh - 140px);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   PAGE STRUCTURE
+   Global semantic page layout pattern
+   ============================================ */
+
+/* Page header group */
+hgroup {
+  margin: 0 0 1.5rem 0;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.hgroup__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.hgroup__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+hgroup h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: 0;
+  letter-spacing: -0.02em;
+}
+
+hgroup h3 {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  letter-spacing: 0;
+}
+
+/* Action buttons in hgroup */
+.hgroup__actions .btn {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.hgroup__actions .btn--primary {
+  background-color: #ff6b35;
+  color: #ffffff;
+}
+
+.hgroup__actions .btn--primary:hover {
+  background-color: #e85d2a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.2);
+}
+
+.hgroup__actions .btn--secondary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.hgroup__actions .btn--secondary:hover {
+  background-color: var(--color-bg-secondary);
+  border-color: #ff6b35;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 768px) {
+  hgroup {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .hgroup__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .hgroup__actions .btn {
+    flex: 1;
+  }
+}
+
+/* Page content container */
+.page {
+  padding: 0 1.5rem 0.75rem 1.5rem;
+}
+
+.page section {
+  margin-bottom: 1.5rem;
+}
+
+.page section:last-child {
+  margin-bottom: 0;
+}

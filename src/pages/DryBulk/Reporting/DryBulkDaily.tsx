@@ -1,6 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { mockTerminals, type TerminalData } from '../../../data/mockTerminalData';
 import '../../../styles/pages/DryBulkDaily.css';
+
+// Calculate linear trend line
+const calculateTrend = (data: any[], key: string) => {
+  const n = data.length;
+  const xValues = data.map((_, i) => i);
+  const yValues = data.map(d => d[key] || 0);
+  
+  const sumX = xValues.reduce((a, b) => a + b, 0);
+  const sumY = yValues.reduce((a, b) => a + b, 0);
+  const sumXY = xValues.reduce((sum, x, i) => sum + x * yValues[i], 0);
+  const sumXX = xValues.reduce((sum, x) => sum + x * x, 0);
+  
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+  
+  return data.map((d, i) => ({
+    ...d,
+    [`${key}Trend`]: slope * i + intercept
+  }));
+};
+
+// Custom legend component with icons
+const CustomLegend = ({ payload, icons, bgColor, textColor }: any) => {
+  // Filter out trend lines (empty names)
+  const filteredPayload = payload.filter((entry: any) => entry.value && entry.value.trim() !== '');
+  
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      gap: '1rem', 
+      paddingTop: '10px', 
+      fontSize: '10px',
+      background: bgColor || 'rgba(15, 23, 42, 0.9)',
+      padding: '8px 16px',
+      borderRadius: '6px',
+      margin: '0 auto',
+      width: 'fit-content'
+    }}>
+      {filteredPayload.map((entry: any, index: number) => (
+        <div key={`item-${index}`} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {icons[entry.value] && (
+            <svg width="14" height="14" viewBox="0 0 24 24" style={{ marginRight: '2px', fill: entry.color }}>
+              {icons[entry.value]}
+            </svg>
+          )}
+          <span style={{ color: textColor || 'rgba(248, 250, 252, 0.98)', fontWeight: 500 }}>{entry.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 interface DryBulkDailyProps {
   activeDay: 'today' | 'tomorrow';
@@ -25,6 +78,45 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
   const [expandedLoads, setExpandedLoads] = useState<Set<string>>(new Set());
   const filterView = 'all'; // Always show all terminals
   const [selectedView, setSelectedView] = useState<'division' | string>('division'); // 'division' or region name
+  const [chartTimeRange, setChartTimeRange] = useState<'now' | 'today' | 'tomorrow' | 'quarterly' | 'annually' | 'ytd'>('now');
+  
+  // Reactive theme detection
+  const [isDarkTheme, setIsDarkTheme] = useState(() => {
+    return document.documentElement.getAttribute('data-theme') !== 'light';
+  });
+
+  // Watch for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+          const theme = document.documentElement.getAttribute('data-theme');
+          setIsDarkTheme(theme !== 'light');
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+  
+  // Theme-aware chart colors
+  const chartTheme = {
+    background: isDarkTheme ? 'rgba(15, 23, 42, 0.8)' : 'rgba(248, 250, 252, 0.9)',
+    titleColor: isDarkTheme ? 'rgba(226, 232, 240, 0.9)' : 'rgba(15, 23, 42, 0.9)',
+    gridColor: isDarkTheme ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+    axisColor: isDarkTheme ? 'rgba(226, 232, 240, 0.7)' : 'rgba(71, 85, 105, 0.7)',
+    axisTickColor: isDarkTheme ? 'rgba(226, 232, 240, 0.9)' : 'rgba(15, 23, 42, 0.8)',
+    tooltipBg: isDarkTheme ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.98)',
+    tooltipBorder: isDarkTheme ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)',
+    tooltipColor: isDarkTheme ? '#fff' : '#0f172a',
+    legendBg: isDarkTheme ? 'rgba(15, 23, 42, 0.85)' : 'rgba(15, 23, 42, 0.9)',
+    legendColor: isDarkTheme ? 'rgba(226, 232, 240, 0.95)' : 'rgba(248, 250, 252, 0.98)',
+  };
   
   // Use mock terminal data
   const terminals: TerminalData[] = mockTerminals;
@@ -111,6 +203,213 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
     }
   };
 
+  // Get terminals for chart data based on selected view
+  const getChartTerminals = () => {
+    if (selectedView === 'division') {
+      return Object.values(terminalsByRegion).flat();
+    } else {
+      return terminalsByRegion[selectedView] || [];
+    }
+  };
+
+  // Generate chart data based on selected region/division and time range
+  const generateChartData = () => {
+    const chartTerminals = getChartTerminals();
+    const totals = calculateRegionTotals(chartTerminals);
+    
+    // Generate data points based on time range
+    switch (chartTimeRange) {
+      case 'now': {
+        // Now view - show today in 2-hour chunks (12 data points)
+        const timeChunks = Array.from({ length: 12 }, (_, i) => i * 2);
+        return timeChunks.map((hour) => {
+          // Simulate 2-hour variation - peak during business hours (8am-6pm)
+          const isPeakHour = hour >= 8 && hour <= 18;
+          const multiplier = isPeakHour ? 0.8 + Math.random() * 0.4 : 0.3 + Math.random() * 0.3;
+          
+          return {
+            day: `${hour.toString().padStart(2, '0')}:00`,
+            loadsShipping: Math.round(totals.loadsShipping * multiplier),
+            loadsDelivering: Math.round(totals.loadsDelivering * multiplier),
+            loadsOpen: Math.round(totals.loadsOpen * multiplier),
+            loadEvents: Math.round(totals.loadEvents * multiplier),
+            assigned: Math.round(totals.trucksAssigned * multiplier),
+            operational: Math.round(totals.trucksOperational * multiplier),
+            oos: Math.round(totals.trucksOOS * multiplier),
+            ltd: Math.round(totals.trucksLTD * multiplier),
+            available: Math.round(totals.trucksAvailable * multiplier),
+            trailersAvailable: Math.round(totals.trailersAvailable * multiplier),
+            trailersOOS: Math.round(totals.trailersOOS * multiplier),
+            driversAssigned: Math.round(totals.driversAssigned * multiplier),
+            driversAvailable: Math.round(totals.driversAvailable * multiplier),
+            driversSitting: Math.round(totals.driversSitting * multiplier),
+          };
+        });
+      }
+      
+      case 'today': {
+        // Today view - show Yesterday, Today, Tomorrow (3 days)
+        const days = ['Yesterday', 'Today', 'Tomorrow'];
+        const multipliers = [0.85, 1.0, 0.95]; // Yesterday slightly lower, today baseline, tomorrow slightly lower
+        
+        return days.map((day, idx) => {
+          const multiplier = multipliers[idx];
+          
+          return {
+            day,
+            loadsShipping: Math.round(totals.loadsShipping * multiplier),
+            loadsDelivering: Math.round(totals.loadsDelivering * multiplier),
+            loadsOpen: Math.round(totals.loadsOpen * multiplier),
+            loadEvents: Math.round(totals.loadEvents * multiplier),
+            assigned: Math.round(totals.trucksAssigned * multiplier),
+            operational: Math.round(totals.trucksOperational * multiplier),
+            oos: Math.round(totals.trucksOOS * multiplier),
+            ltd: Math.round(totals.trucksLTD * multiplier),
+            available: Math.round(totals.trucksAvailable * multiplier),
+            trailersAvailable: Math.round(totals.trailersAvailable * multiplier),
+            trailersOOS: Math.round(totals.trailersOOS * multiplier),
+            driversAssigned: Math.round(totals.driversAssigned * multiplier),
+            driversAvailable: Math.round(totals.driversAvailable * multiplier),
+            driversSitting: Math.round(totals.driversSitting * multiplier),
+          };
+        });
+      }
+      
+      case 'tomorrow': {
+        // Tomorrow view - show Today, Tomorrow, Day After (3 days)
+        const days = ['Today', 'Tomorrow', 'Day After'];
+        const multipliers = [1.0, 0.95, 0.90]; // Today baseline, tomorrow slightly lower, day after lower
+        
+        return days.map((day, idx) => {
+          const multiplier = multipliers[idx];
+          
+          return {
+            day,
+            loadsShipping: Math.round(totals.loadsShipping * multiplier),
+            loadsDelivering: Math.round(totals.loadsDelivering * multiplier),
+            loadsOpen: Math.round(totals.loadsOpen * multiplier),
+            loadEvents: Math.round(totals.loadEvents * multiplier),
+            assigned: Math.round(totals.trucksAssigned * multiplier),
+            operational: Math.round(totals.trucksOperational * multiplier),
+            oos: Math.round(totals.trucksOOS * multiplier),
+            ltd: Math.round(totals.trucksLTD * multiplier),
+            available: Math.round(totals.trucksAvailable * multiplier),
+            trailersAvailable: Math.round(totals.trailersAvailable * multiplier),
+            trailersOOS: Math.round(totals.trailersOOS * multiplier),
+            driversAssigned: Math.round(totals.driversAssigned * multiplier),
+            driversAvailable: Math.round(totals.driversAvailable * multiplier),
+            driversSitting: Math.round(totals.driversSitting * multiplier),
+          };
+        });
+      }
+      
+      case 'quarterly': {
+        // Quarterly view - show 13 weeks (91 days)
+        const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
+        return weeks.map((week) => {
+          // Simulate weekly variation
+          const multiplier = 0.7 + Math.random() * 0.6;
+          
+          return {
+            day: `W${week}`,
+            loadsShipping: Math.round(totals.loadsShipping * multiplier * 7), // Weekly totals
+            loadsDelivering: Math.round(totals.loadsDelivering * multiplier * 7),
+            loadsOpen: Math.round(totals.loadsOpen * multiplier),
+            loadEvents: Math.round(totals.loadEvents * multiplier * 7),
+            assigned: Math.round(totals.trucksAssigned * multiplier),
+            operational: Math.round(totals.trucksOperational * multiplier),
+            oos: Math.round(totals.trucksOOS * multiplier),
+            ltd: Math.round(totals.trucksLTD * multiplier),
+            available: Math.round(totals.trucksAvailable * multiplier),
+            trailersAvailable: Math.round(totals.trailersAvailable * multiplier),
+            trailersOOS: Math.round(totals.trailersOOS * multiplier),
+            driversAssigned: Math.round(totals.driversAssigned * multiplier),
+            driversAvailable: Math.round(totals.driversAvailable * multiplier),
+            driversSitting: Math.round(totals.driversSitting * multiplier),
+          };
+        });
+      }
+      
+      case 'annually': {
+        // Annual view - show 12 months
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return months.map((month, idx) => {
+          // Simulate seasonal variation - peak in summer months
+          const isSummerMonth = idx >= 4 && idx <= 8; // May-Sep
+          const multiplier = isSummerMonth ? 0.9 + Math.random() * 0.2 : 0.6 + Math.random() * 0.3;
+          
+          return {
+            day: month,
+            loadsShipping: Math.round(totals.loadsShipping * multiplier * 30), // Monthly totals
+            loadsDelivering: Math.round(totals.loadsDelivering * multiplier * 30),
+            loadsOpen: Math.round(totals.loadsOpen * multiplier),
+            loadEvents: Math.round(totals.loadEvents * multiplier * 30),
+            assigned: Math.round(totals.trucksAssigned * multiplier),
+            operational: Math.round(totals.trucksOperational * multiplier),
+            oos: Math.round(totals.trucksOOS * multiplier),
+            ltd: Math.round(totals.trucksLTD * multiplier),
+            available: Math.round(totals.trucksAvailable * multiplier),
+            trailersAvailable: Math.round(totals.trailersAvailable * multiplier),
+            trailersOOS: Math.round(totals.trailersOOS * multiplier),
+            driversAssigned: Math.round(totals.driversAssigned * multiplier),
+            driversAvailable: Math.round(totals.driversAvailable * multiplier),
+            driversSitting: Math.round(totals.driversSitting * multiplier),
+          };
+        });
+      }
+      
+      case 'ytd': {
+        // Year to Date - show data from Jan to current month (Nov 2025)
+        const currentMonth = 11; // November (0-indexed)
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+        return months.slice(0, currentMonth + 1).map((month, idx) => {
+          // Simulate growth trend over the year
+          const growthFactor = 0.7 + (idx / currentMonth) * 0.4; // Growing trend
+          const multiplier = growthFactor + Math.random() * 0.2;
+          
+          return {
+            day: month,
+            loadsShipping: Math.round(totals.loadsShipping * multiplier * 30),
+            loadsDelivering: Math.round(totals.loadsDelivering * multiplier * 30),
+            loadsOpen: Math.round(totals.loadsOpen * multiplier),
+            loadEvents: Math.round(totals.loadEvents * multiplier * 30),
+            assigned: Math.round(totals.trucksAssigned * multiplier),
+            operational: Math.round(totals.trucksOperational * multiplier),
+            oos: Math.round(totals.trucksOOS * multiplier),
+            ltd: Math.round(totals.trucksLTD * multiplier),
+            available: Math.round(totals.trucksAvailable * multiplier),
+            trailersAvailable: Math.round(totals.trailersAvailable * multiplier),
+            trailersOOS: Math.round(totals.trailersOOS * multiplier),
+            driversAssigned: Math.round(totals.driversAssigned * multiplier),
+            driversAvailable: Math.round(totals.driversAvailable * multiplier),
+            driversSitting: Math.round(totals.driversSitting * multiplier),
+          };
+        });
+      }
+      
+      default:
+        return [];
+    }
+  };
+
+  const rawChartData = generateChartData();
+  
+  // Add trend lines for all metrics
+  let chartData = calculateTrend(rawChartData, 'loadsShipping');
+  chartData = calculateTrend(chartData, 'loadsDelivering');
+  chartData = calculateTrend(chartData, 'loadsOpen');
+  chartData = calculateTrend(chartData, 'loadEvents');
+  chartData = calculateTrend(chartData, 'assigned');
+  chartData = calculateTrend(chartData, 'operational');
+  chartData = calculateTrend(chartData, 'oos');
+  chartData = calculateTrend(chartData, 'ltd');
+  chartData = calculateTrend(chartData, 'available');
+  chartData = calculateTrend(chartData, 'trailersAvailable');
+  chartData = calculateTrend(chartData, 'trailersOOS');
+  chartData = calculateTrend(chartData, 'driversAssigned');
+  chartData = calculateTrend(chartData, 'driversAvailable');
+  chartData = calculateTrend(chartData, 'driversSitting');
+
   return (
     <div className="page-container">
         <div className="page-header">
@@ -119,30 +418,169 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
         </div>
 
         <div className="dashboard-filters">
-          <select 
-            className="region-selector"
-            value={selectedView}
-            onChange={(e) => setSelectedView(e.target.value)}
-          >
-            <option value="division">📊 Division View</option>
-            {Object.keys(terminalsByRegion).sort().map(region => (
-              <option key={region} value={region}>📍 {region}</option>
-            ))}
-          </select>
+          <div className="toggle">
+            <select 
+              className="region-selector"
+              value={selectedView}
+              onChange={(e) => setSelectedView(e.target.value)}
+            >
+              <option value="division">📊 Division View</option>
+              {Object.keys(terminalsByRegion).sort().map(region => (
+                <option key={region} value={region}>📍 {region}</option>
+              ))}
+            </select>
+          </div>
 
-          <div className="day-toggle">
+          <div className="toggle">
             <button 
-              className={`day-toggle__btn ${activeDay === 'today' ? 'day-toggle__btn--active' : ''}`}
-              onClick={() => onDayChange('today')}
+              className={`day-toggle__btn ${chartTimeRange === 'now' ? 'day-toggle__btn--active' : ''}`}
+              onClick={() => setChartTimeRange('now')}
+              style={{ minWidth: '80px' }}
+            >
+              Now
+            </button>
+            <button 
+              className={`day-toggle__btn ${chartTimeRange === 'today' ? 'day-toggle__btn--active' : ''}`}
+              onClick={() => setChartTimeRange('today')}
+              style={{ minWidth: '80px' }}
             >
               Today
             </button>
             <button 
-              className={`day-toggle__btn ${activeDay === 'tomorrow' ? 'day-toggle__btn--active' : ''}`}
-              onClick={() => onDayChange('tomorrow')}
+              className={`day-toggle__btn ${chartTimeRange === 'tomorrow' ? 'day-toggle__btn--active' : ''}`}
+              onClick={() => setChartTimeRange('tomorrow')}
+              style={{ minWidth: '80px' }}
             >
               Tomorrow
             </button>
+            <button 
+              className={`day-toggle__btn ${chartTimeRange === 'quarterly' ? 'day-toggle__btn--active' : ''}`}
+              onClick={() => setChartTimeRange('quarterly')}
+              style={{ minWidth: '80px' }}
+            >
+              Quarterly
+            </button>
+            <button 
+              className={`day-toggle__btn ${chartTimeRange === 'annually' ? 'day-toggle__btn--active' : ''}`}
+              onClick={() => setChartTimeRange('annually')}
+              style={{ minWidth: '80px' }}
+            >
+              Annually
+            </button>
+            <button 
+              className={`day-toggle__btn ${chartTimeRange === 'ytd' ? 'day-toggle__btn--active' : ''}`}
+              onClick={() => setChartTimeRange('ytd')}
+              style={{ minWidth: '80px' }}
+            >
+              Year to Date
+            </button>
+          </div>
+        </div>
+
+        {/* Weekly Charts */}
+        {/* Loads Chart - Full Width */}
+        <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '8px' }}>
+          <h3 style={{ color: chartTheme.titleColor, marginBottom: '1rem', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>📦 Loads Overview</h3>
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
+              <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '13px', fontWeight: 600 }} tick={{ fill: chartTheme.axisTickColor }} />
+              <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '12px', fontWeight: 600 }} tick={{ fill: chartTheme.axisTickColor }} />
+              <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '6px', color: chartTheme.tooltipColor }} labelStyle={{ color: '#ff6b35', fontWeight: 700 }} />
+              <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
+                'LLD': <><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#86efac" strokeWidth="3"/></>,
+                'LUL': <><path d="M12 5v14M5 12l7 7 7-7" fill="none" stroke="#c084fc" strokeWidth="3"/></>,
+                'OPN': <><circle cx="12" cy="12" r="9" fill="none" stroke="#ef4444" strokeWidth="3"/></>,
+                'EVT': <><path d="M12 2L2 20h20L12 2z" fill="none" stroke="#fbbf24" strokeWidth="3"/><path d="M12 9v4" stroke="#fbbf24" strokeWidth="2"/><circle cx="12" cy="17" r="1" fill="#fbbf24"/></>
+              }} />} />
+              <Line type="monotone" dataKey="loadsShipping" stroke="#86efac" strokeWidth={3} dot={{ fill: '#86efac', r: 5 }} name="LLD" />
+              <Line type="monotone" dataKey="loadsShippingTrend" stroke="#86efac" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+              <Line type="monotone" dataKey="loadsDelivering" stroke="#c084fc" strokeWidth={3} dot={{ fill: '#c084fc', r: 5 }} name="LUL" />
+              <Line type="monotone" dataKey="loadsDeliveringTrend" stroke="#c084fc" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+              <Line type="monotone" dataKey="loadsOpen" stroke="#ef4444" strokeWidth={3} dot={{ fill: '#ef4444', r: 5 }} name="OPN" />
+              <Line type="monotone" dataKey="loadsOpenTrend" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+              <Line type="monotone" dataKey="loadEvents" stroke="#fbbf24" strokeWidth={3} dot={{ fill: '#fbbf24', r: 5 }} name="EVT" />
+              <Line type="monotone" dataKey="loadEventsTrend" stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Multi-column compact charts */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+          
+          {/* Trucks Chart */}
+          <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.25rem', borderRadius: '8px' }}>
+            <h3 style={{ color: chartTheme.titleColor, marginBottom: '0.75rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>🚛 Trucks</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
+                <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '11px' }} tick={{ fill: chartTheme.axisTickColor }} />
+                <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '10px' }} tick={{ fill: chartTheme.axisTickColor }} />
+                <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '4px', fontSize: '11px', color: chartTheme.tooltipColor }} />
+                <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
+                  'ASN': <><rect x="1" y="8" width="14" height="8" fill="#94a3b8"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#94a3b8"/><circle cx="6" cy="19" r="2" fill="#94a3b8"/><circle cx="18" cy="19" r="2" fill="#94a3b8"/></>,
+                  'OPR': <><rect x="1" y="8" width="14" height="8" fill="#4ade80"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#4ade80"/><circle cx="6" cy="19" r="2" fill="#4ade80"/><circle cx="18" cy="19" r="2" fill="#4ade80"/></>,
+                  'OOS': <><rect x="1" y="8" width="14" height="8" fill="#fb923c"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#fb923c"/><circle cx="6" cy="19" r="2" fill="#fb923c"/><circle cx="18" cy="19" r="2" fill="#fb923c"/></>,
+                  'LTD': <><rect x="1" y="8" width="14" height="8" fill="#ef4444"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#ef4444"/><circle cx="6" cy="19" r="2" fill="#ef4444"/><circle cx="18" cy="19" r="2" fill="#ef4444"/></>,
+                  'AVL': <><rect x="1" y="8" width="14" height="8" fill="#4ade80"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#4ade80"/><circle cx="6" cy="19" r="2" fill="#4ade80"/><circle cx="18" cy="19" r="2" fill="#4ade80"/></>
+                }} />} />
+                <Line type="monotone" dataKey="assigned" stroke="#94a3b8" strokeWidth={2.5} dot={{ r: 4 }} name="ASN" />
+                <Line type="monotone" dataKey="assignedTrend" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+                <Line type="monotone" dataKey="operational" stroke="#4ade80" strokeWidth={2.5} dot={{ r: 4 }} name="OPR" />
+                <Line type="monotone" dataKey="operationalTrend" stroke="#4ade80" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+                <Line type="monotone" dataKey="oos" stroke="#fb923c" strokeWidth={2.5} dot={{ r: 4 }} name="OOS" />
+                <Line type="monotone" dataKey="oosTrend" stroke="#fb923c" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+                <Line type="monotone" dataKey="ltd" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 4 }} name="LTD" />
+                <Line type="monotone" dataKey="ltdTrend" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+                <Line type="monotone" dataKey="available" stroke="#4ade80" strokeWidth={2.5} dot={{ r: 4 }} name="AVL" />
+                <Line type="monotone" dataKey="availableTrend" stroke="#4ade80" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Trailers Chart */}
+          <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.25rem', borderRadius: '8px' }}>
+            <h3 style={{ color: chartTheme.titleColor, marginBottom: '0.75rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>🚚 Trailers</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
+                <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '11px' }} tick={{ fill: chartTheme.axisTickColor }} />
+                <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '10px' }} tick={{ fill: chartTheme.axisTickColor }} />
+                <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '4px', fontSize: '11px', color: chartTheme.tooltipColor }} />
+                <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
+                  'AVL': <><rect x="1" y="9" width="18" height="8" fill="#4ade80"/><circle cx="6" cy="20" r="2" fill="#4ade80"/><circle cx="14" cy="20" r="2" fill="#4ade80"/></>,
+                  'OOS': <><rect x="1" y="9" width="18" height="8" fill="#fb923c"/><circle cx="6" cy="20" r="2" fill="#fb923c"/><circle cx="14" cy="20" r="2" fill="#fb923c"/></>
+                }} />} />
+                <Line type="monotone" dataKey="trailersAvailable" stroke="#4ade80" strokeWidth={2.5} dot={{ r: 4 }} name="AVL" />
+                <Line type="monotone" dataKey="trailersAvailableTrend" stroke="#4ade80" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+                <Line type="monotone" dataKey="trailersOOS" stroke="#fb923c" strokeWidth={2.5} dot={{ r: 4 }} name="OOS" />
+                <Line type="monotone" dataKey="trailersOOSTrend" stroke="#fb923c" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Drivers Chart */}
+          <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.25rem', borderRadius: '8px' }}>
+            <h3 style={{ color: chartTheme.titleColor, marginBottom: '0.75rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>👤 Drivers</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
+                <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '11px' }} tick={{ fill: chartTheme.axisTickColor }} />
+                <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '10px' }} tick={{ fill: chartTheme.axisTickColor }} />
+                <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '4px', fontSize: '11px', color: chartTheme.tooltipColor }} />
+                <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
+                  'ASN': <><circle cx="12" cy="8" r="4" fill="#94a3b8"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="#94a3b8"/></>,
+                  'AVL': <><circle cx="12" cy="8" r="4" fill="#4ade80"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="#4ade80"/></>,
+                  'SIT': <><circle cx="12" cy="8" r="4" fill="#94a3b8"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="#94a3b8"/></>
+                }} />} />
+                <Line type="monotone" dataKey="driversAssigned" stroke="#94a3b8" strokeWidth={2.5} dot={{ r: 4 }} name="ASN" />
+                <Line type="monotone" dataKey="driversAssignedTrend" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+                <Line type="monotone" dataKey="driversAvailable" stroke="#4ade80" strokeWidth={2.5} dot={{ r: 4 }} name="AVL" />
+                <Line type="monotone" dataKey="driversAvailableTrend" stroke="#4ade80" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+                <Line type="monotone" dataKey="driversSitting" stroke="#94a3b8" strokeWidth={2.5} dot={{ r: 4 }} name="SIT" />
+                <Line type="monotone" dataKey="driversSittingTrend" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 

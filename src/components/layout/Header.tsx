@@ -4,14 +4,16 @@ import '../../styles/components/Header.css';
 
 interface HeaderProps {
   className?: string;
-  onThemeChange?: (theme: 'light' | 'dark' | 'auto') => void;
+  onThemeChange?: (theme: 'light' | 'dark') => void;
 }
 
 export const Header = ({ className = '', onThemeChange }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [helpMenuOpen, setHelpMenuOpen] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark' | 'auto'>('light');
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
+    return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
+  });
   const [rocketLaunching, setRocketLaunching] = useState(false);
   const [rocketReturning, setRocketReturning] = useState(false);
 
@@ -70,10 +72,27 @@ export const Header = ({ className = '', onThemeChange }: HeaderProps) => {
     setMobileMenuOpen(false);
   };
 
+  // Sync with document theme changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+          const newTheme = (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
+          setCurrentTheme(newTheme);
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const cycleTheme = () => {
-    const themes: Array<'light' | 'dark' | 'auto'> = ['light', 'dark', 'auto'];
-    const currentIndex = themes.indexOf(currentTheme);
-    const nextTheme = themes[(currentIndex + 1) % themes.length];
+    const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
     setCurrentTheme(nextTheme);
     if (onThemeChange) {
       onThemeChange(nextTheme);
@@ -100,13 +119,6 @@ export const Header = ({ className = '', onThemeChange }: HeaderProps) => {
         return (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        );
-      case 'auto':
-        return (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 2v20" />
           </svg>
         );
     }

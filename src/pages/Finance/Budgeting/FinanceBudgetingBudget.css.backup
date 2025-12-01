@@ -1,0 +1,23 @@
+.finance-budgeting-budget {
+
+  padding: 2rem;
+}.budget-section {
+
+  border-radius: 8px;
+
+  padding: 1.5rem;
+
+  background: white;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}.budget-section h2 {
+
+  margin-bottom: 1rem;
+
+  color: #1a1a1a;
+}.budget-section p {
+
+  color: #666;
+
+  line-height: 1.6;
+}

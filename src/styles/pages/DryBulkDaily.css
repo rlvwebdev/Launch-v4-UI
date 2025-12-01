@@ -91,6 +91,14 @@
   background: rgba(156, 39, 176, 0.08) !important;
 }
 
+/* Page Header */
+.page-header__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
 /* Dashboard Filters */
 .dashboard-filters {
   display: flex;
@@ -99,40 +107,300 @@
   margin-bottom: 1.5rem;
 }
 
-/* Day Toggle */
+/* Day Toggle Buttons */
 .day-toggle {
   display: flex;
-  gap: 0.25rem;
-  background: var(--bg-overlay-hover);
-  padding: 0.25rem;
-  border-radius: 0;
-  width: fit-content;
+  gap: 0.5rem;
+  justify-content: center;
 }
 
 .day-toggle__btn {
-  padding: 0.5rem 1.5rem;
-  border: none;
-  border-radius: 0;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-muted);
-  background: transparent;
+  letter-spacing: 0.05em;
+  color: rgba(148, 163, 184, 0.9);
+  background: rgba(15, 23, 42, 0.6);
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  transition: none;
+  position: relative;
+}
+
+.day-toggle__btn:hover {
+  background: rgba(255, 107, 53, 0.1);
+  border-color: rgba(255, 107, 53, 0.3);
+  color: rgba(255, 107, 53, 0.95);
 }
 
 .day-toggle__btn--active {
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  background: rgba(255, 107, 53, 0.15);
+  border-color: rgba(255, 107, 53, 0.4);
+  color: #ff6b35;
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.2);
 }
 
-.day-toggle__btn:not(.day-toggle__btn--active):hover {
-  color: var(--text-secondary);
-  background: var(--bg-overlay-hover);
+.day-toggle__btn--active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
+}
+
+[data-theme="light"] .day-toggle__btn {
+  background: rgba(248, 250, 252, 0.8);
+  border-color: rgba(226, 232, 240, 0.8);
+  color: rgba(71, 85, 105, 0.9);
+}
+
+[data-theme="light"] .day-toggle__btn:hover {
+  background: rgba(255, 107, 53, 0.08);
+  border-color: rgba(255, 107, 53, 0.3);
+  color: #ff6b35;
+}
+
+[data-theme="light"] .day-toggle__btn--active {
+  background: rgba(255, 107, 53, 0.12);
+  border-color: rgba(255, 107, 53, 0.4);
+  color: #ff6b35;
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.15);
+}
+
+/* Weekday Toggle */
+.weekday-toggle {
+  display: flex;
+  gap: 0;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.weekday-toggle__btn {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: 'Rajdhani', sans-serif;
+  color: rgba(148, 163, 184, 0.8);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.weekday-toggle__btn:last-child {
+  border-right: none;
+}
+
+.weekday-toggle__btn::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.weekday-toggle__day {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.weekday-toggle__stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.weekday-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.weekday-stat__icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  opacity: 0.8;
+}
+
+.weekday-toggle__btn--active {
+  background: rgba(255, 107, 53, 0.08);
+  color: #ff6b35;
+}
+
+.weekday-toggle__btn--active::before {
+  background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
+}
+
+.weekday-toggle__btn--active .weekday-stat__icon {
+  opacity: 1;
+  stroke: #ff6b35;
+  fill: #ff6b35;
+}
+
+.weekday-toggle__btn--today:not(.weekday-toggle__btn--active) {
+  color: rgba(255, 107, 53, 0.9);
+}
+
+.weekday-toggle__btn--today:not(.weekday-toggle__btn--active)::before {
+  background: rgba(255, 107, 53, 0.3);
+  height: 2px;
+}
+
+.weekday-toggle__btn--today:not(.weekday-toggle__btn--active) .weekday-stat__icon {
+  stroke: #ff6b35;
+  fill: #ff6b35;
+  opacity: 0.7;
+}
+
+.weekday-toggle__btn:not(.weekday-toggle__btn--active):hover {
+  background: rgba(148, 163, 184, 0.05);
+  color: rgba(226, 232, 240, 0.9);
+}
+
+/* Weekly Chart */
+.weekly-chart {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.weekly-chart::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 107, 53, 0.3) 50%, transparent 100%);
+}
+
+.weekly-chart__header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.weekly-chart__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: rgba(148, 163, 184, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0;
+}
+
+.weekly-chart__legend {
+  display: flex;
+  gap: 3rem;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+.legend-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legend-group-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgba(148, 163, 184, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.legend-color {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.weekly-chart__content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  min-height: 460px;
+}
+
+.line-chart {
+  width: 100%;
+  height: 460px;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.line-chart line {
+  stroke: rgba(255, 255, 255, 0.03);
+}
+
+.line-chart polyline {
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+.line-chart circle {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.line-chart circle:hover {
+  transform: scale(1.3);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) brightness(1.15);
+}
+
+.line-chart text {
+  font-family: 'Rajdhani', sans-serif;
+  user-select: none;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 /* Region Selector */
@@ -157,6 +425,21 @@
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   padding-right: 2.5rem;
+}
+
+.region-selector--button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  border: none;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  margin-right: 0;
+}
+
+.region-selector--button:hover {
+  background: linear-gradient(135deg, #f7931e 0%, #ff6b35 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
 }
 
 .region-selector:hover {
@@ -284,7 +567,8 @@
 .terminal-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9375rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.875rem;
 }
 
 .terminal-table thead {
@@ -296,11 +580,11 @@
   padding: 0.5rem 0.5rem;
   text-align: center;
   color: #f1f5f9;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
   white-space: nowrap;
   border-bottom: 1px solid #334155;
   cursor: help;
@@ -337,7 +621,9 @@
   padding: 0.5rem 0.625rem;
   color: var(--text-secondary);
   white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.875rem;
+  font-weight: 500;
   text-align: center;
 }
 
