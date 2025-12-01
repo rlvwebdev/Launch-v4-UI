@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { mockTerminals, type TerminalData } from '../../../data/mockTerminalData';
+import { TaskTracker, Task } from '../../../components/common';
 import '../../../styles/pages/DryBulkDaily.css';
 
 // Calculate linear trend line
@@ -25,8 +26,11 @@ const calculateTrend = (data: any[], key: string) => {
 
 // Custom legend component with icons
 const CustomLegend = ({ payload, icons, bgColor, textColor }: any) => {
-  // Filter out trend lines (empty names)
-  const filteredPayload = payload.filter((entry: any) => entry.value && entry.value.trim() !== '');
+  // Filter out trend lines (empty names) and any entries without a dataKey
+  const filteredPayload = payload.filter((entry: any) => {
+    // Keep only entries with valid names (not empty or just whitespace)
+    return entry.value && entry.value.trim() !== '' && !entry.dataKey?.includes('Trend');
+  });
   
   return (
     <div style={{ 
@@ -44,7 +48,7 @@ const CustomLegend = ({ payload, icons, bgColor, textColor }: any) => {
       {filteredPayload.map((entry: any, index: number) => (
         <div key={`item-${index}`} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {icons[entry.value] && (
-            <svg width="14" height="14" viewBox="0 0 24 24" style={{ marginRight: '2px', fill: entry.color }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" style={{ marginRight: '2px', color: entry.color }}>
               {icons[entry.value]}
             </svg>
           )}
@@ -220,15 +224,15 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
     // Generate data points based on time range
     switch (chartTimeRange) {
       case 'now': {
-        // Now view - show today in 2-hour chunks (12 data points)
-        const timeChunks = Array.from({ length: 12 }, (_, i) => i * 2);
-        return timeChunks.map((hour) => {
-          // Simulate 2-hour variation - peak during business hours (8am-6pm)
-          const isPeakHour = hour >= 8 && hour <= 18;
-          const multiplier = isPeakHour ? 0.8 + Math.random() * 0.4 : 0.3 + Math.random() * 0.3;
+        // Now view - show Yesterday, Today, Tomorrow (3 days) for all charts
+        const days = ['Yesterday', 'Today', 'Tomorrow'];
+        const multipliers = [0.85, 1.0, 0.95]; // Yesterday slightly lower, today baseline, tomorrow slightly lower
+        
+        return days.map((day, idx) => {
+          const multiplier = multipliers[idx];
           
           return {
-            day: `${hour.toString().padStart(2, '0')}:00`,
+            day,
             loadsShipping: Math.round(totals.loadsShipping * multiplier),
             loadsDelivering: Math.round(totals.loadsDelivering * multiplier),
             loadsOpen: Math.round(totals.loadsOpen * multiplier),
@@ -477,21 +481,23 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
           </div>
         </div>
 
-        {/* Weekly Charts */}
-        {/* Loads Chart - Full Width */}
-        <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '8px' }}>
-          <h3 style={{ color: chartTheme.titleColor, marginBottom: '1rem', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>📦 Loads Overview</h3>
-          <ResponsiveContainer width="100%" height={240}>
+        {/* All Charts - Equal 4-Column Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+          
+          {/* Loads Chart */}
+          <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.25rem', borderRadius: '8px' }}>
+            <h3 style={{ color: chartTheme.titleColor, marginBottom: '0.75rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>📦 Loads</h3>
+            <ResponsiveContainer width="100%" height={240}>
             <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
               <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '13px', fontWeight: 600 }} tick={{ fill: chartTheme.axisTickColor }} />
               <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '12px', fontWeight: 600 }} tick={{ fill: chartTheme.axisTickColor }} />
               <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '6px', color: chartTheme.tooltipColor }} labelStyle={{ color: '#ff6b35', fontWeight: 700 }} />
               <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
-                'LLD': <><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#86efac" strokeWidth="3"/></>,
-                'LUL': <><path d="M12 5v14M5 12l7 7 7-7" fill="none" stroke="#c084fc" strokeWidth="3"/></>,
-                'OPN': <><circle cx="12" cy="12" r="9" fill="none" stroke="#ef4444" strokeWidth="3"/></>,
-                'EVT': <><path d="M12 2L2 20h20L12 2z" fill="none" stroke="#fbbf24" strokeWidth="3"/><path d="M12 9v4" stroke="#fbbf24" strokeWidth="2"/><circle cx="12" cy="17" r="1" fill="#fbbf24"/></>
+                'LLD': <><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="3"/></>,
+                'LUL': <><path d="M12 5v14M5 12l7 7 7-7" fill="none" stroke="currentColor" strokeWidth="3"/></>,
+                'OPN': <><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="3"/></>,
+                'EVT': <><path d="M12 2L2 20h20L12 2z" fill="none" stroke="currentColor" strokeWidth="3"/><path d="M12 9v4" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="17" r="1" fill="currentColor"/></>
               }} />} />
               <Line type="monotone" dataKey="loadsShipping" stroke="#86efac" strokeWidth={3} dot={{ fill: '#86efac', r: 5 }} name="LLD" />
               <Line type="monotone" dataKey="loadsShippingTrend" stroke="#86efac" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
@@ -505,24 +511,21 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
           </ResponsiveContainer>
         </div>
 
-        {/* Multi-column compact charts */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-          
           {/* Trucks Chart */}
           <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.25rem', borderRadius: '8px' }}>
             <h3 style={{ color: chartTheme.titleColor, marginBottom: '0.75rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>🚛 Trucks</h3>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={240}>
               <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
                 <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '11px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '10px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '4px', fontSize: '11px', color: chartTheme.tooltipColor }} />
                 <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
-                  'ASN': <><rect x="1" y="8" width="14" height="8" fill="#94a3b8"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#94a3b8"/><circle cx="6" cy="19" r="2" fill="#94a3b8"/><circle cx="18" cy="19" r="2" fill="#94a3b8"/></>,
-                  'OPR': <><rect x="1" y="8" width="14" height="8" fill="#4ade80"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#4ade80"/><circle cx="6" cy="19" r="2" fill="#4ade80"/><circle cx="18" cy="19" r="2" fill="#4ade80"/></>,
-                  'OOS': <><rect x="1" y="8" width="14" height="8" fill="#fb923c"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#fb923c"/><circle cx="6" cy="19" r="2" fill="#fb923c"/><circle cx="18" cy="19" r="2" fill="#fb923c"/></>,
-                  'LTD': <><rect x="1" y="8" width="14" height="8" fill="#ef4444"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#ef4444"/><circle cx="6" cy="19" r="2" fill="#ef4444"/><circle cx="18" cy="19" r="2" fill="#ef4444"/></>,
-                  'AVL': <><rect x="1" y="8" width="14" height="8" fill="#4ade80"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="#4ade80"/><circle cx="6" cy="19" r="2" fill="#4ade80"/><circle cx="18" cy="19" r="2" fill="#4ade80"/></>
+                  'ASN': <><rect x="1" y="8" width="14" height="8" fill="currentColor"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="currentColor"/><circle cx="6" cy="19" r="2" fill="currentColor"/><circle cx="18" cy="19" r="2" fill="currentColor"/></>,
+                  'OPR': <><rect x="1" y="8" width="14" height="8" fill="currentColor"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="currentColor"/><circle cx="6" cy="19" r="2" fill="currentColor"/><circle cx="18" cy="19" r="2" fill="currentColor"/></>,
+                  'OOS': <><rect x="1" y="8" width="14" height="8" fill="currentColor"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="currentColor"/><circle cx="6" cy="19" r="2" fill="currentColor"/><circle cx="18" cy="19" r="2" fill="currentColor"/></>,
+                  'LTD': <><rect x="1" y="8" width="14" height="8" fill="currentColor"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="currentColor"/><circle cx="6" cy="19" r="2" fill="currentColor"/><circle cx="18" cy="19" r="2" fill="currentColor"/></>,
+                  'AVL': <><rect x="1" y="8" width="14" height="8" fill="currentColor"/><path d="M15 8h4l2 3v3h-2M8 19h6" fill="currentColor"/><circle cx="6" cy="19" r="2" fill="currentColor"/><circle cx="18" cy="19" r="2" fill="currentColor"/></>
                 }} />} />
                 <Line type="monotone" dataKey="assigned" stroke="#94a3b8" strokeWidth={2.5} dot={{ r: 4 }} name="ASN" />
                 <Line type="monotone" dataKey="assignedTrend" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
@@ -541,15 +544,15 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
           {/* Trailers Chart */}
           <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.25rem', borderRadius: '8px' }}>
             <h3 style={{ color: chartTheme.titleColor, marginBottom: '0.75rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>🚚 Trailers</h3>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={240}>
               <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
                 <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '11px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '10px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '4px', fontSize: '11px', color: chartTheme.tooltipColor }} />
                 <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
-                  'AVL': <><rect x="1" y="9" width="18" height="8" fill="#4ade80"/><circle cx="6" cy="20" r="2" fill="#4ade80"/><circle cx="14" cy="20" r="2" fill="#4ade80"/></>,
-                  'OOS': <><rect x="1" y="9" width="18" height="8" fill="#fb923c"/><circle cx="6" cy="20" r="2" fill="#fb923c"/><circle cx="14" cy="20" r="2" fill="#fb923c"/></>
+                  'AVL': <><rect x="1" y="9" width="18" height="8" fill="currentColor"/><circle cx="6" cy="20" r="2" fill="currentColor"/><circle cx="14" cy="20" r="2" fill="currentColor"/></>,
+                  'OOS': <><rect x="1" y="9" width="18" height="8" fill="currentColor"/><circle cx="6" cy="20" r="2" fill="currentColor"/><circle cx="14" cy="20" r="2" fill="currentColor"/></>
                 }} />} />
                 <Line type="monotone" dataKey="trailersAvailable" stroke="#4ade80" strokeWidth={2.5} dot={{ r: 4 }} name="AVL" />
                 <Line type="monotone" dataKey="trailersAvailableTrend" stroke="#4ade80" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
@@ -562,16 +565,16 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
           {/* Drivers Chart */}
           <div className="weekly-chart" style={{ background: chartTheme.background, padding: '1.25rem', borderRadius: '8px' }}>
             <h3 style={{ color: chartTheme.titleColor, marginBottom: '0.75rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>👤 Drivers</h3>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={240}>
               <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} />
                 <XAxis dataKey="day" stroke={chartTheme.axisColor} style={{ fontSize: '11px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '10px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '4px', fontSize: '11px', color: chartTheme.tooltipColor }} />
                 <Legend content={<CustomLegend bgColor={chartTheme.legendBg} textColor={chartTheme.legendColor} icons={{
-                  'ASN': <><circle cx="12" cy="8" r="4" fill="#94a3b8"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="#94a3b8"/></>,
-                  'AVL': <><circle cx="12" cy="8" r="4" fill="#4ade80"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="#4ade80"/></>,
-                  'SIT': <><circle cx="12" cy="8" r="4" fill="#94a3b8"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="#94a3b8"/></>
+                  'ASN': <><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="currentColor"/></>,
+                  'AVL': <><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="currentColor"/></>,
+                  'SIT': <><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="currentColor"/></>
                 }} />} />
                 <Line type="monotone" dataKey="driversAssigned" stroke="#94a3b8" strokeWidth={2.5} dot={{ r: 4 }} name="ASN" />
                 <Line type="monotone" dataKey="driversAssignedTrend" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 5" dot={false} opacity={0.5} name="" />
@@ -960,127 +963,65 @@ export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChan
   );
 };
 
-// Export the aside content as a separate component
+// Mock initial tasks for Dry Bulk Daily
+const mockDryBulkTasks: Task[] = [
+  {
+    id: '1',
+    title: 'Complete DOT Compliance Report',
+    type: 'Compliance Report',
+    priority: 'High',
+    status: 'In Progress',
+    dueDate: '2025-12-02',
+    assignedTo: 'John Smith',
+    terminal: 'Houston',
+    notes: 'Q4 compliance filing',
+    createdDate: '2025-11-28'
+  },
+  {
+    id: '2',
+    title: 'Daily Dry Bulk Operations Report',
+    type: 'Daily Dry Bulk Report',
+    priority: 'High',
+    status: 'Not Started',
+    dueDate: '2025-12-01',
+    assignedTo: 'Sarah Johnson',
+    terminal: 'Dallas',
+    notes: 'End of day summary',
+    createdDate: '2025-12-01'
+  },
+  {
+    id: '3',
+    title: 'Driver Incident Investigation',
+    type: 'Investigation',
+    priority: 'High',
+    status: 'In Progress',
+    dueDate: '2025-12-03',
+    assignedTo: 'Mike Wilson',
+    terminal: 'Austin',
+    notes: 'Minor fender bender - T-1043',
+    createdDate: '2025-11-30'
+  },
+  {
+    id: '4',
+    title: 'New Hire Onboarding Review',
+    type: 'HR Inquiry',
+    priority: 'Medium',
+    status: 'Not Started',
+    dueDate: '2025-12-05',
+    assignedTo: 'Lisa Brown',
+    terminal: 'Houston',
+    notes: '3 new drivers starting Monday',
+    createdDate: '2025-11-29'
+  },
+];
+
+// Export the aside content as a task tracker
 export const DryBulkDailyAside: React.FC<{ activeDay: 'today' | 'tomorrow'; terminals: TerminalData[] }> = ({ terminals }) => {
-  // Calculate totals for aside
-  const calculateTotals = (day: 'today' | 'tomorrow') => {
-    if (day === 'today') {
-      const totalLoads = terminals.reduce((sum, t) => sum + t.today.loadsShipping + t.today.loadsDelivering, 0);
-      const totalLoadsOpen = terminals.reduce((sum, t) => sum + t.today.loadsOpen, 0);
-      const totalTrucksAvailable = terminals.reduce((sum, t) => sum + t.today.trucksAvailable, 0);
-      const totalTrucksOOS = terminals.reduce((sum, t) => sum + t.today.trucksOOS, 0);
-      const totalDriversAvailable = terminals.reduce((sum, t) => sum + t.today.driversAvailable, 0);
-      const totalDriversAssigned = terminals.reduce((sum, t) => sum + t.today.driversAssigned, 0);
-      const totalRevenue = terminals.reduce((sum, t) => sum + t.today.estimatedRevenue, 0);
-      const totalMiles = terminals.reduce((sum, t) => sum + t.today.totalMiles, 0);
-      const driverPercentage = totalDriversAssigned > 0 ? Math.round((totalDriversAvailable / totalDriversAssigned) * 100) : 0;
-
-      return {
-        loads: `${totalLoads}/${totalLoadsOpen}`,
-        trucks: `${totalTrucksAvailable}/${totalTrucksOOS}`,
-        drivers: `${totalDriversAvailable} (${driverPercentage}%)`,
-        revenue: `$${(totalRevenue / 1000).toFixed(1)}K`,
-        miles: totalMiles.toLocaleString(),
-      };
-    } else {
-      const totalLoads = terminals.reduce((sum, t) => sum + t.tomorrow.loadsShipping + t.tomorrow.loadsDelivering, 0);
-      const totalLoadsOpen = terminals.reduce((sum, t) => sum + t.tomorrow.loadsOpen, 0);
-      const totalTrucksAvailable = terminals.reduce((sum, t) => sum + t.tomorrow.trucksAvailable, 0);
-      const totalTrucksOOS = terminals.reduce((sum, t) => sum + t.tomorrow.trucksOOS, 0);
-      const totalDriversAvailable = terminals.reduce((sum, t) => sum + t.tomorrow.driversAvailable, 0);
-      const totalDriversAssigned = terminals.reduce((sum, t) => sum + t.tomorrow.driversAssigned, 0);
-      const driverPercentage = totalDriversAssigned > 0 ? Math.round((totalDriversAvailable / totalDriversAssigned) * 100) : 0;
-
-      return {
-        loads: `${totalLoads}/${totalLoadsOpen}`,
-        trucks: `${totalTrucksAvailable}/${totalTrucksOOS}`,
-        drivers: `${totalDriversAvailable} (${driverPercentage}%)`,
-      };
-    }
-  };
-
-  const todayTotals = calculateTotals('today');
-  const tomorrowTotals = calculateTotals('tomorrow');
-
   return (
-    <>
-      <div className="aside-section">
-        <h3 className="aside-section__title">Today</h3>
-        <div className="aside-stats">
-            <div className="aside-stat">
-              <div className="aside-stat__label">Loads</div>
-              <div className="aside-stat__value">{todayTotals.loads}</div>
-              <div className="aside-stat__sublabel">Active / Open</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">Trucks</div>
-              <div className="aside-stat__value">{todayTotals.trucks}</div>
-              <div className="aside-stat__sublabel">Available / OOS</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">Drivers</div>
-              <div className="aside-stat__value">{todayTotals.drivers}</div>
-              <div className="aside-stat__sublabel">Available</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">Revenue</div>
-              <div className="aside-stat__value">{todayTotals.revenue}</div>
-              <div className="aside-stat__sublabel">Daily Estimate</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">Miles</div>
-              <div className="aside-stat__value">{todayTotals.miles}</div>
-              <div className="aside-stat__sublabel">Total Today</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="aside-section">
-          <h3 className="aside-section__title">Tomorrow</h3>
-          <div className="aside-stats">
-            <div className="aside-stat">
-              <div className="aside-stat__label">Loads</div>
-              <div className="aside-stat__value">{tomorrowTotals.loads}</div>
-              <div className="aside-stat__sublabel">Active / Open</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">Trucks</div>
-              <div className="aside-stat__value">{tomorrowTotals.trucks}</div>
-              <div className="aside-stat__sublabel">Available / OOS</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">Drivers</div>
-              <div className="aside-stat__value">{tomorrowTotals.drivers}</div>
-              <div className="aside-stat__sublabel">Available</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="aside-section">
-          <h3 className="aside-section__title">Dry Bulk Stats</h3>
-          <div className="aside-stats">
-            <div className="aside-stat">
-              <div className="aside-stat__label">YTD Miles</div>
-              <div className="aside-stat__value">2.4M</div>
-              <div className="aside-stat__sublabel">Total Miles</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">YTD Loads</div>
-              <div className="aside-stat__value">8,542</div>
-              <div className="aside-stat__sublabel">Total Loads</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">YTD Revenue</div>
-              <div className="aside-stat__value">$12.8M</div>
-              <div className="aside-stat__sublabel">Total Revenue</div>
-            </div>
-            <div className="aside-stat">
-              <div className="aside-stat__label">OTD</div>
-              <div className="aside-stat__value">94.2%</div>
-              <div className="aside-stat__sublabel">On-Time Delivery</div>
-            </div>
-          </div>
-        </div>
-    </>
+    <TaskTracker 
+      title="Dry Bulk Tasks" 
+      defaultTerminal={terminals[0]?.name || 'Houston'}
+      initialTasks={mockDryBulkTasks}
+    />
   );
 };
