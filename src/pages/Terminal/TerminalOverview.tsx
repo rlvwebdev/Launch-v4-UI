@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { mockTerminals } from '../../data/mockTerminalData';
 import { Main, Aside } from '../../components/layout';
@@ -386,15 +386,7 @@ export const TerminalOverview = () => {
                 <XAxis dataKey="priority" stroke={chartTheme.axisColor} style={{ fontSize: '11px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <YAxis stroke={chartTheme.axisColor} style={{ fontSize: '10px' }} tick={{ fill: chartTheme.axisTickColor }} />
                 <Tooltip contentStyle={{ backgroundColor: chartTheme.tooltipBg, border: chartTheme.tooltipBorder, borderRadius: '4px', color: chartTheme.tooltipColor }} />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                  {[
-                    { priority: 'High', count: maintenanceStats.high, fill: '#ef4444' },
-                    { priority: 'Medium', count: mockMaintenanceData.filter(m => m.priority === 'Medium').length, fill: '#fbbf24' },
-                    { priority: 'Low', count: mockMaintenanceData.filter(m => m.priority === 'Low').length, fill: '#4ade80' },
-                  ].map((entry, index) => (
-                    <cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
+                <Bar dataKey="count" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

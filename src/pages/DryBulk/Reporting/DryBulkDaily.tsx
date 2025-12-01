@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { mockTerminals, type TerminalData } from '../../../data/mockTerminalData';
 import { TaskTracker, Task } from '../../../components/common';
 import '../../../styles/pages/DryBulkDaily.css';
@@ -77,7 +77,7 @@ const seededRandom = (seed: string) => {
   };
 };
 
-export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay, onDayChange }) => {
+export const DryBulkDaily: React.FC<DryBulkDailyProps> = ({ activeDay }) => {
   const [expandedTerminals, setExpandedTerminals] = useState<Set<string>>(new Set());
   const [expandedLoads, setExpandedLoads] = useState<Set<string>>(new Set());
   const filterView = 'all'; // Always show all terminals
